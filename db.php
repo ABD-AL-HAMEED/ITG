@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username = "root";
 $password = ""; // XAMPP's default is an empty password
-$dbname = "cv-analysis-sys"; // Name of your database
+$dbname = "itg"; // Name of your database
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
