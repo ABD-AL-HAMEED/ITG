@@ -1,50 +1,117 @@
--- Create Database
-CREATE DATABASE IF NOT EXISTS `itg` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS `itg`;
 USE `itg`;
 
--- Users Table
-CREATE TABLE IF NOT EXISTS `users` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `first_name` VARCHAR(50) NOT NULL,
-    `last_name` VARCHAR(50) NOT NULL,
-    `email` VARCHAR(100) UNIQUE NOT NULL,
-    `password_hash` VARCHAR(255) NOT NULL,
-    `role` ENUM('admin', 'recruiter', 'user') DEFAULT 'user',
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE `candidates` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `first_name` varchar(50) NOT NULL,
+  `last_name` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `applied_position_id` int(11) DEFAULT NULL,
+  `skills` text DEFAULT NULL,
+  `resume_path` varchar(255) DEFAULT NULL,
+  `application_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `applied_position_id` (`applied_position_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `candidate_detailed_info` (
+  `id` bigint(20) NOT NULL,
+  `Specialty` varchar(255) DEFAULT NULL,
+  `Objective` text DEFAULT NULL,
+  `Skills` text DEFAULT NULL,
+  `COMPUTER_SKILLS` text DEFAULT NULL,
+  `Courses_Certifications` text DEFAULT NULL,
+  `Education_id` bigint(20) DEFAULT NULL,
+  `Languages` text DEFAULT NULL,
+  `EXPERIENCE` text DEFAULT NULL,
+  `cv` blob DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Skills Table
-CREATE TABLE IF NOT EXISTS `skills` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `skill_name` VARCHAR(100) NOT NULL UNIQUE
+CREATE TABLE `candidate_skills` (
+  `candidate_id` int(11) NOT NULL,
+  `skill_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Positions Table
-CREATE TABLE IF NOT EXISTS `positions` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `position_name` VARCHAR(100) NOT NULL UNIQUE,
-    `description` TEXT
+CREATE TABLE `education` (
+  `id` bigint(20) NOT NULL,
+  `institution_name` varchar(255) NOT NULL,
+  `degree` varchar(255) NOT NULL,
+  `field_of_study` varchar(255) NOT NULL,
+  `graduation_date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Candidates Table
-CREATE TABLE IF NOT EXISTS `candidates` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `first_name` VARCHAR(50) NOT NULL,
-    `last_name` VARCHAR(50) NOT NULL,
-    `email` VARCHAR(100) UNIQUE NOT NULL,
-    `phone` VARCHAR(20),
-    `applied_position_id` INT,
-    `skills` TEXT,
-    `resume_path` VARCHAR(255),
-    `application_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (`applied_position_id`) REFERENCES `positions`(`id`) ON DELETE SET NULL
+CREATE TABLE `employees` (
+  `id` bigint(20) NOT NULL,
+  `Name` varchar(255) NOT NULL,
+  `Password` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Candidate Skills Junction Table
-CREATE TABLE IF NOT EXISTS `candidate_skills` (
-    `candidate_id` INT,
-    `skill_id` INT,
-    PRIMARY KEY (`candidate_id`, `skill_id`),
-    FOREIGN KEY (`candidate_id`) REFERENCES `candidates`(`id`) ON DELETE CASCADE,
-    FOREIGN KEY (`skill_id`) REFERENCES `skills`(`id`) ON DELETE CASCADE
+CREATE TABLE `positions` (
+  `id` int(11) NOT NULL,
+  `position_name` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `Required_Skill_Set` bigint(20) DEFAULT NULL,
+  `Required_Experience` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `position_skills` (
+  `id` int(11) NOT NULL,
+  `position_id` int(11) NOT NULL,
+  `skill_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `skills` (
+  `id` int(11) NOT NULL,
+  `skill_name` varchar(100) NOT NULL,
+  `Description` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `first_name` varchar(50) NOT NULL,
+  `last_name` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  `role` enum('admin','recruiter','user') DEFAULT 'user',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `positions` (`position_name`, `description`, `Required_Skill_Set`, `Required_Experience`) VALUES
+('Business Analyst', 'Analyzes business needs and processes to optimize performance', NULL, NULL),
+('Graphic Designer', 'Creates visual concepts and designs for marketing materials', NULL, NULL),
+('Human Resources', 'Manages employee relations and organizational policies', NULL, NULL),
+('Cybersecurity', 'Protects systems and networks from cyber threats', NULL, NULL),
+('AI Developer', 'Develops AI-driven applications and machine learning models', NULL, NULL);
+
+INSERT INTO `skills` (`skill_name`, `Description`) VALUES
+('Effective communication', 'Ability to clearly convey information and ideas.'),
+('Critical thinking', 'Ability to objectively analyze and evaluate an issue to form a judgment.'),
+('Organizational Skills', 'Capability to plan and prioritize tasks efficiently.'),
+('Data analysis', 'Examining and interpreting data to extract insights.'),
+('SQL', 'Structured Query Language used to manage databases.'),
+('Power BI', 'Business analytics tool for data visualization and reporting.'),
+('Tableau', 'Data visualization software for business intelligence.'),
+('Creativity', 'Generating innovative ideas and unique designs.'),
+('Teamwork', 'Collaborating effectively with others to achieve common goals.'),
+('Client communication', 'Interacting professionally with clients to understand and fulfill requirements.'),
+('Adaptability', 'Ability to adjust to new conditions and challenges.'),
+('Adobe Photoshop', 'Software for image editing and graphic design.'),
+('Illustrator', 'Vector graphics software used for logo and illustration design.'),
+('Adobe XD', 'Design and prototyping tool for UI/UX projects.'),
+('UI/UX design', 'Creating user-friendly and aesthetically pleasing digital interfaces.'),
+('Animation tools', 'Software used for motion graphics and animations.'),
+('Negotiation', 'Skill in reaching mutually beneficial agreements.'),
+('Communication', 'Exchanging ideas effectively in various formats.'),
+('Active listening', 'Fully concentrating, understanding, and responding to others.'),
+('HRMS', 'Human Resource Management System for handling employee data.'),
+('Employee data analysis', 'Using data analytics to improve HR processes.'),
+('Labor laws', 'Understanding and applying legal regulations in HR.'),
+('Problem-solving', 'Identifying and resolving complex issues efficiently.');
+
+INSERT INTO `position_skills` (`position_id`, `skill_id`) VALUES
+(1, 1),
+(2, 3),
+(3, 5),
+(4, 7),
+(5, 9);
