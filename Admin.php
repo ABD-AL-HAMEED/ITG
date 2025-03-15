@@ -2,7 +2,7 @@
 include 'db.php'; // Database connection
 
 // Fetch positions
-$positionsQuery = "SELECT id, Name FROM Positions";
+$positionsQuery = "SELECT id, position_name FROM Positions";
 $positionsResult = mysqli_query($conn, $positionsQuery);
 $positions = [];
 while ($row = mysqli_fetch_assoc($positionsResult)) {

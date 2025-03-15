@@ -1,8 +1,6 @@
--- Optimized Database Structure for phpMyAdmin
-
 -- Create Database
-CREATE DATABASE IF NOT EXISTS `admin_panel` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `admin_panel`;
+CREATE DATABASE IF NOT EXISTS `itg` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `itg`;
 
 -- Users Table
 CREATE TABLE IF NOT EXISTS `users` (

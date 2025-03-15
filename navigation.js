@@ -2,7 +2,10 @@ function navigate(section, event = null) {
     if (event) event.preventDefault();
 
     let content = document.getElementById('content-area');
-    if (!content) return;
+    if (!content) {
+        console.error("Content area not found.");
+        return;
+    }
 
     let htmlContent = '';
 
@@ -17,7 +20,9 @@ function navigate(section, event = null) {
                 <label for="position">Select Position:</label>
                 <select id="position" name="position" onchange="SkillsList()">
                     <option value="">Choose Position</option>
-                    ${Object.keys(positionSkills).map(pos => `<option value="${pos}">${pos}</option>`).join('')}
+                    ${typeof positionSkills !== "undefined" 
+                        ? Object.keys(positionSkills).map(pos => `<option value="${pos}">${pos}</option>`).join('')
+                        : '<option disabled>Data not available</option>'}
                 </select>
                 <div class="skills-container">
                     <div class="skills-column">
@@ -45,7 +50,9 @@ function navigate(section, event = null) {
 
         case 'positions':
             htmlContent = `<h2>Available Positions</h2>
-                           <ul>${Object.keys(positionSkills).map(pos => `<li>${pos}</li>`).join('')}</ul>`;
+                           <ul>${typeof positionSkills !== "undefined" 
+                                ? Object.keys(positionSkills).map(pos => `<li>${pos}</li>`).join('')
+                                : '<li>Data not available</li>'}</ul>`;
             break;
 
         default:
@@ -54,4 +61,18 @@ function navigate(section, event = null) {
     }
 
     content.innerHTML = htmlContent;
+}
+
+function setupNavigation() {
+    document.querySelectorAll(".sidebar a").forEach(link => {
+        link.addEventListener("click", function (event) {
+            event.preventDefault();
+            let section = this.getAttribute("data-section");
+            if (section) {
+                navigate(section, event);
+            } else {
+                console.error("Invalid navigation link: Missing 'data-section' attribute.");
+            }
+        });
+    });
 }

@@ -8,17 +8,20 @@ function SkillsList() {
     techSkillsList.innerHTML = "";
 
     let selectedPosition = document.getElementById("position").value;
-    if (!selectedPosition || !positionSkills[selectedPosition]) return;
-
-    if (positionSkills[selectedPosition]['soft']) {
-        softSkillsList.innerHTML = positionSkills[selectedPosition]['soft']
-            .map(skill => `<li><label><input type="checkbox" class="skill-checkbox" onchange="updateResults()"> ${skill}</label></li>`)
-            .join('');
+    if (!selectedPosition) return;
+    if (typeof positionSkills === "undefined" || !positionSkills[selectedPosition]) {
+        console.error("Position skills data missing or incorrect");
+        return;
     }
 
-    if (positionSkills[selectedPosition]['technical']) {
-        techSkillsList.innerHTML = positionSkills[selectedPosition].technical
-            .map(skill => `<li><label><input type="checkbox" class="skill-checkbox" onchange="updateResults()"> ${skill}</label></li>`)
-            .join('');
-    }
+    let softSkills = positionSkills[selectedPosition]?.soft || [];
+    let technicalSkills = positionSkills[selectedPosition]?.technical || [];
+
+    softSkillsList.innerHTML = softSkills
+        .map(skill => `<li><label><input type="checkbox" class="skill-checkbox" onchange="updateResults()" value="${skill}"> ${skill}</label></li>`)
+        .join('');
+
+    techSkillsList.innerHTML = technicalSkills
+        .map(skill => `<li><label><input type="checkbox" class="skill-checkbox" onchange="updateResults()" value="${skill}"> ${skill}</label></li>`)
+        .join('');
 }
