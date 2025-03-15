@@ -8,6 +8,7 @@ $positions = [];
 while ($row = mysqli_fetch_assoc($positionsResult)) {
     $positions[$row['id']] = $row['position_name'];
 }
+// test 1
 
 // Fetch skills related to positions
 $skillsQuery = "SELECT s.Name as skill_name, p.Name as position_name, s.Category 
