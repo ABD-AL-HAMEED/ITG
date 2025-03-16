@@ -1,121 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Job Application Form</title>
     <link rel="stylesheet" href="style-form.css">
 </head>
+
 <body>
     <div class="form-container">
         <img src="ITG_logo_2x.png" alt="Company Logo" class="form-logo">
         <h1 class="form-header">Job Application Form</h1>
         <div class="form-subHeader"> Please Fill Out the Form Below to Submit Your Job Application!</div>
         <form action="submit_application.php" method="post" enctype="multipart/form-data">
-    <div class="form-line">
-        <label class="form-label" for="first_name">First Name<span class="form-required">*</span></label>
-        <input type="text" id="first_name" name="first_name" class="form-textbox" required>
-    </div>
+            <div class="form-line">
+                <label class="form-label" for="first_name">First Name<span class="form-required">*</span></label>
+                <input type="text" id="first_name" name="first_name" class="form-textbox" required>
+            </div>
 
-    <div class="form-line">
-        <label class="form-label" for="last_name">Last Name<span class="form-required">*</span></label>
-        <input type="text" id="last_name" name="last_name" class="form-textbox" required>
-    </div>
+            <div class="form-line">
+                <label class="form-label" for="last_name">Last Name<span class="form-required">*</span></label>
+                <input type="text" id="last_name" name="last_name" class="form-textbox" required>
+            </div>
 
-    <div class="form-line">
-        <label class="form-label" for="email">E-mail<span class="form-required">*</span></label>
-        <input type="email" id="email" name="email" class="form-textbox" required>
-    </div>
+            <div class="form-line">
+                <label class="form-label" for="email">E-mail<span class="form-required">*</span></label>
+                <input type="email" id="email" name="email" class="form-textbox" required>
+            </div>
 
-    <div class="form-line">
-        <label class="form-label" for="phone">Phone Number<span class="form-required">*</span></label>
-        <input type="tel" id="phone" name="phone" class="form-textbox" required>
-    </div>
+            <div class="form-line">
+                <label class="form-label" for="phone">Phone Number<span class="form-required">*</span></label>
+                <input type="tel" id="phone" name="phone" class="form-textbox" required>
+            </div>
 
-    <div class="form-line">
-        <label class="form-label" for="position">Applied Position<span class="form-required">*</span></label>
-        <select id="position" name="position" class="form-dropdown" required>
-            <option value="">Select Position</option>
-        </select>
-    </div>
+            <div class="form-line">
+                <label class="form-label" for="position">Applied Position<span class="form-required">*</span></label>
+                <select id="position" name="position" class="form-dropdown" required>
+                    <option value="">Select Position</option>
+                </select>
+            </div>
 
-    <!-- Position Description Section (Hidden by Default) -->
-    <div id="positionDetails" style="display: none; margin-top: 10px; padding: 10px; border: 1px solid #ddd;">
-        <strong>What is expected of you as a <span id="selectedPosition"></span>:</strong>
-        <p id="positionDescription">Please select a position.</p>
-    </div>
+            <!-- Position Description Section (Hidden by Default) -->
+            <div id="positionDetails" style="display: none; margin-top: 10px; padding: 10px; border: 1px solid #ddd;">
+                <strong>What is expected of you as a <span id="selectedPosition"></span>:</strong>
+                <p id="positionDescription">Please select a position.</p>
+            </div>
 
-    <div class="form-line">
-        <label class="form-label" for="cover_letter">Cover Letter</label>
-        <textarea id="cover_letter" name="cover_letter" class="form-textarea" rows="5"></textarea>
-    </div>
+            <div class="form-line">
+                <label class="form-label" for="cover_letter">Cover Letter</label>
+                <textarea id="cover_letter" name="cover_letter" class="form-textarea" rows="5"></textarea>
+            </div>
 
-    <div class="form-line">
-        <label class="form-label" for="resume">Upload Resume<span class="form-required">*</span></label>
-        <input type="file" id="resume" name="resume" class="form-textbox" required>
-    </div>
+            <div class="form-line">
+                <label class="form-label" for="resume">Upload Resume<span class="form-required">*</span></label>
+                <input type="file" id="resume" name="resume" class="form-textbox" required>
+            </div>
 
-    <div class="form-line">
-        <label class="form-label" for="other_documents">Any Other Documents to Upload</label>
-        <input type="file" id="other_documents" name="other_documents" class="form-textbox">
-    </div>
+            <div class="form-line">
+                <label class="form-label" for="other_documents">Any Other Documents to Upload</label>
+                <input type="file" id="other_documents" name="other_documents" class="form-textbox">
+            </div>
 
-    <div class="form-line">
-        <button type="submit" class="form-submit-button">Apply</button>
-    </div>
-</form>
+            <div class="form-line">
+                <button type="submit" class="form-submit-button">Apply</button>
+            </div>
+        </form>
 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    const positionDropdown = document.getElementById("position");
-    const positionDetails = document.getElementById("positionDetails");
-    const positionDescription = document.getElementById("positionDescription");
-    const selectedPosition = document.getElementById("selectedPosition");
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const positionDropdown = document.getElementById("position");
+                const positionDetails = document.getElementById("positionDetails");
+                const positionDescription = document.getElementById("positionDescription");
+                const selectedPosition = document.getElementById("selectedPosition");
 
-    // Load positions into the dropdown
-    fetch("get_positions.php")
-        .then(response => response.text())
-        .then(data => {
-            positionDropdown.innerHTML += data;
-        })
-        .catch(error => console.error("Error loading positions:", error));
+                // Load positions into the dropdown
+                fetch("get_positions.php")
+                    .then(response => response.text())
+                    .then(data => {
+                        positionDropdown.innerHTML += data;
+                    })
+                    .catch(error => console.error("Error loading positions:", error));
 
-    // Handle position selection change
-    positionDropdown.addEventListener("change", function() {
-        let selectedValue = this.value;
-        let selectedText = this.options[this.selectedIndex].text;
+                // Handle position selection change
+                positionDropdown.addEventListener("change", function () {
+                    let selectedValue = this.value;
+                    let selectedText = this.options[this.selectedIndex].text;
 
-        if (selectedValue) {
-            fetch(`get_positions.php?position_name=${encodeURIComponent(selectedValue)}`)
-                .then(response => response.json())
-                .then(data => {
-                    selectedPosition.textContent = selectedText; // Show selected position name
-                    positionDescription.textContent = data.description || "No description available.";
-                    positionDetails.style.display = "block"; // Show details section
-                })
-                .catch(error => console.error("Error fetching position details:", error));
-        } else {
-            positionDetails.style.display = "none"; // Hide if no position is selected
-        }
-    });
-});
-document.getElementById("positionSelect").addEventListener("change", function() {
-    let position = this.value;
-    let expectedSection = document.getElementById("expectedSection");
+                    if (selectedValue) {
+                        fetch(`get_positions.php?position_name=${encodeURIComponent(selectedValue)}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                selectedPosition.textContent = selectedText; // Show selected position name
+                                positionDescription.textContent = data.description || "No description available.";
+                                positionDetails.style.display = "block"; // Show details section
+                            })
+                            .catch(error => console.error("Error fetching position details:", error));
+                    } else {
+                        positionDetails.style.display = "none"; // Hide if no position is selected
+                    }
+                });
+            });
+            document.getElementById("positionSelect").addEventListener("change", function () {
+                let position = this.value;
+                let expectedSection = document.getElementById("expectedSection");
 
-    if (position) {
-        expectedSection.classList.add("active");
-        expectedSection.innerHTML = `<strong>What is expected of you as a ${position}:</strong><br> Develops AI applications, works with data models, etc.`;
-    } else {
-        expectedSection.classList.remove("active");
-    }
-});
-
-
+                if (position) {
+                    expectedSection.classList.add("active");
+                    expectedSection.innerHTML = `<strong>What is expected of you as a ${position}:</strong><br> Develops AI applications, works with data models, etc.`;
+                } else {
+                    expectedSection.classList.remove("active");
+                }
+            });
 
 
-</script>
+
+
+        </script>
 
     </div>
 </body>
+
 </html>
