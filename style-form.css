@@ -1,0 +1,131 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; /* Stack elements properly */
+}
+
+.form-container {
+    width: 1050px;
+    max-width: 1400px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background-color: #f5fdff;
+    
+    /* Keeps space consistent */
+    margin-top: 50px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 15px; /* Ensures consistent spacing */
+}
+
+/* LOGO */
+.form-logo {
+    max-width: 150px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+/* Form Header Styles */
+.form-header {
+    font-size: 28px;
+    margin-bottom: 10px;
+    text-align: center;
+    color: #367c96;
+}
+
+.form-subHeader {
+    font-size: 16px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #1a728f;
+}
+
+/* Input Fields */
+.form-line {
+    margin-bottom: 15px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-textbox, .form-textarea, .form-dropdown {
+    width: 98%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.form-textbox:focus, .form-textarea:focus, .form-dropdown:focus {
+    border-color: #367c96;
+    outline: none;
+}
+
+/* Submit Button */
+.form-submit-button {
+    background-color: #367c96;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    transition: background-color 0.3s;
+    align-self: stretch; /* Ensures it takes full width inside the form */
+}
+
+.form-submit-button:hover {
+    background-color: #2c5e7a;
+}
+
+/* Required Field Indicator */
+.form-required {
+    color: red;
+}
+
+/* Small Labels */
+.form-sub-label {
+    font-size: 12px;
+    color: #1a728f;
+    margin-top: 5px;
+}
+
+/* Ensure Last Form Line Doesn't Have Extra Spacing */
+.form-line:last-child {
+    margin-bottom: 0;
+}
+
+/* Position Description Box (Reserves Space but Expands Properly) */
+/* Position Description Box (Reserves Space but Expands Properly) */
+#expectedSection {
+    width: 98%;
+    padding: 12px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #eef7fa;
+    font-size: 14px;
+    font-weight: bold;
+    max-height: 0;  /* Start with max-height of 0 */
+    opacity: 0;
+    visibility: hidden;
+    overflow: hidden; /* Prevents overflow when collapsed */
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, visibility 0.3s;
+}
+
+/* When Active, It Expands Instead of Pushing Up */
+#expectedSection.active {
+    visibility: visible;
+    opacity: 1;
+    max-height: 200px;  /* Set a max-height that is sufficient for content */
+}
