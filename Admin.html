@@ -1,34 +1,3 @@
-<?php
-include 'db.php'; // Database connection
-
-// Fetch positions
-$positionsQuery = "SELECT id, position_name FROM Positions";
-$positionsResult = mysqli_query($conn, $positionsQuery);
-$positions = [];
-while ($row = mysqli_fetch_assoc($positionsResult)) {
-    $positions[$row['id']] = $row['position_name'];
-}
-// test 1
-
-// Fetch skills related to positions
-$skillsQuery = "SELECT s.Name as skill_name, p.Name as position_name, s.Category 
-                FROM Skills s
-                JOIN Position_Skills ps ON s.id = ps.skill_id
-                JOIN Positions p ON ps.position_id = p.id";
-$skillsResult = mysqli_query($conn, $skillsQuery);
-$positionSkills = [];
-
-while ($row = mysqli_fetch_assoc($skillsResult)) {
-    $category = strtolower($row['Category']); // Ensure lowercase
-    $positionSkills[$row['position_name']][$category][] = $row['skill_name'];
-}
-?>
-
-<script>
-    // Make sure positionSkills is defined globally in JavaScript
-    let positionSkills = <?php echo json_encode($positionSkills); ?>;
-    console.log("Loaded positionSkills:", positionSkills);
-</script>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -58,12 +27,29 @@ while ($row = mysqli_fetch_assoc($skillsResult)) {
             <p>Manage candidates and applications easily from this panel.</p>
         </div>
     </div>
+
+    <!-- Load JavaScript -->
     <script src="main.js"></script>
     <script src="navigation.js"></script>
     <script src="setup.js"></script>
     <script src="skills.js"></script>
     <script src="candidates.js"></script>
     <script src="addSkill.js"></script>
+
+    <script>
+        // Fetch data from `data.php` when the page loads
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("data.php")
+                .then(response => response.json())
+                .then(data => {
+                    window.positions = data.positions;
+                    window.positionSkills = data.positionSkills;
+                    console.log("Loaded Positions:", positions);
+                    console.log("Loaded Position Skills:", positionSkills);
+                })
+                .catch(error => console.error("Error loading data:", error));
+        });
+    </script>
 
 </body>
 

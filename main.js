@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     setupNavigation();
     if (typeof positionSkills === "undefined") {
-        console.error("positionSkills is not defined");
+        console.error("position Skills is not defined");
     } else {
         console.log("Loaded positionSkills:", positionSkills);
     }
