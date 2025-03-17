@@ -7,6 +7,7 @@ CREATE TABLE `candidates` (
   `last_name` varchar(50) NOT NULL,
   `email` varchar(100) NOT NULL,
   `phone` varchar(20) DEFAULT NULL,
+  `is_favorite` BOOLEAN DEFAULT 0,
   `applied_position_id` int(11) DEFAULT NULL,
   `skills` text DEFAULT NULL,
   `resume_path` varchar(255) DEFAULT NULL,
