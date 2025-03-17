@@ -110,6 +110,31 @@ INSERT INTO `skills` (`skill_name`, `Description`) VALUES
 ('Labor laws', 'Understanding and applying legal regulations in HR.'),
 ('Problem-solving', 'Identifying and resolving complex issues efficiently.');
 
+
+-- Adjust the skill_id values according to your database schema.
+-- The current values are placeholders and may need to be updated.
+-- Here are the correct connection 
+/* "Business Analyst": {
+        "technical_skills": ["Data analysis", "SQL", "Power BI", "Tableau", "Process modeling", "CRM systems"],
+        "soft_skills": ["Communication", "Critical thinking", "Organizational skills", "Problem-solving", "Adaptability"]
+    },
+    "Graphic Designer": {
+        "technical_skills": ["Photoshop", "Illustrator", "UI/UX design", "Animation tools", "Prototyping", "Branding"],
+        "soft_skills": ["Creativity", "Collaboration", "Client communication", "Time management"]
+    },
+    "HR (Human Resources)": {
+        "technical_skills": ["HRMS", "Recruitment tools", "Payroll systems", "Compliance tracking"],
+        "soft_skills": ["Communication", "Empathy", "Conflict resolution", "Leadership"]
+    },
+    "Cybersecurity": {
+        "technical_skills": ["Network security", "Threat detection", "Penetration testing", "Encryption", "Risk management"],
+        "soft_skills": ["Critical thinking", "Problem-solving", "Resilience under pressure"]
+    },
+    "AI Developer": {
+        "technical_skills": ["Machine Learning", "Deep Learning", "Python", "TensorFlow", "NLP", "Computer Vision"],
+        "soft_skills": ["Analytical thinking", "Teamwork", "Innovation", "Continuous learning"]
+    }
+}*/
 INSERT INTO `position_skills` (`position_id`, `skill_id`) VALUES
 (1, 129),
 (1, 130),
