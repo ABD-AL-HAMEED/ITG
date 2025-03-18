@@ -1,11 +1,7 @@
 function addSkill() {
     let skillInput = document.getElementById("new-skill");
-    if (!skillInput) {
-        console.error("Error: Skill input field not found.");
-        return;
-    }
-
     let newSkill = skillInput.value.trim();
+
     if (!newSkill) {
         alert("Please enter a skill name.");
         return;
@@ -19,13 +15,52 @@ function addSkill() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            let skillsList = document.getElementById("skills-list");
-            let li = document.createElement("li");
-            li.textContent = newSkill;
-            skillsList.appendChild(li);
             alert("Skill added successfully!");
+            loadSkillsTable(); // Reload table to show new skill
+            skillInput.value = ""; // Clear input
         } else {
             alert("Error adding skill: " + data.error);
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+function editSkill(skillName) {
+    let newSkill = prompt("Edit skill name:", skillName);
+    if (!newSkill || newSkill.trim() === "") return;
+
+    fetch("edit_skill.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `oldSkill=${encodeURIComponent(skillName)}&newSkill=${encodeURIComponent(newSkill)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Skill updated successfully!");
+            loadSkillsTable(); // Reload table
+        } else {
+            alert("Error updating skill: " + data.error);
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+function deleteSkill(skillName) {
+    if (!confirm(`Are you sure you want to delete "${skillName}"?`)) return;
+
+    fetch("delete_skill.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `skill=${encodeURIComponent(skillName)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Skill deleted successfully!");
+            loadSkillsTable(); // Reload table
+        } else {
+            alert("Error deleting skill: " + data.error);
         }
     })
     .catch(error => console.error("Error:", error));

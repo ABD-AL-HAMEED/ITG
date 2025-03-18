@@ -42,10 +42,19 @@ function navigate(section, event = null) {
         case 'skills':
     htmlContent = `
         <h2>Modify Skills</h2>
+        
+        <!-- Add New Skill Form -->
+        <div class="skill-form">
+            <input type="text" id="new-skill" placeholder="Enter new skill">
+            <button onclick="addSkill()">Add Skill</button>
+        </div>
+
+        <!-- Skills Table -->
         <table id="skillsTable" border="1">
             <thead>
                 <tr id="tableHeader">
-                    <th>Skills</th> <!-- First column for skills -->
+                    <th>Skills</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -53,7 +62,7 @@ function navigate(section, event = null) {
     `;
     content.innerHTML = htmlContent;
 
-    // Use setTimeout to ensure DOM is updated before loading skills
+    // Wait for the DOM to update, then load skills
     setTimeout(() => {
         let skillsTable = document.getElementById("skillsTable");
         if (skillsTable) {
@@ -61,9 +70,9 @@ function navigate(section, event = null) {
         } else {
             console.error("Table elements not found even after navigation.");
         }
-    }, 100); 
-
+    }, 100);
     break;
+
 
 
 
