@@ -27,7 +27,7 @@ CREATE TABLE `candidate_detailed_info` (
   `Education_id` int(11) DEFAULT NULL,
   `Languages` text DEFAULT NULL,
   `EXPERIENCE` text DEFAULT NULL,
-  `cv` blob DEFAULT NULL,
+  `cv` MEDIUMBLOB DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `candidate_id` (`candidate_id`),
   KEY `Education_id` (`Education_id`)
