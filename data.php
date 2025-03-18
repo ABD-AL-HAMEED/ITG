@@ -1,34 +1,42 @@
 <?php
-include 'db.php'; // Database connection
+include 'db.php'; 
 
-header('Content-Type: application/json'); // Return JSON format
+header('Content-Type: application/json'); 
 
-// Fetch positions
+$response = ["positions" => [], "positionSkills" => []];
+
+
 $positionsQuery = "SELECT id, position_name FROM positions";
 $positionsResult = mysqli_query($conn, $positionsQuery);
-$positions = [];
-while ($row = mysqli_fetch_assoc($positionsResult)) {
-    $positions[$row['id']] = $row['position_name'];
+
+if ($positionsResult) {
+    while ($row = mysqli_fetch_assoc($positionsResult)) {
+        $response["positions"][$row["id"]] = $row["position_name"];
+    }
+} else {
+    echo json_encode(["error" => "Failed to fetch positions"]);
+    exit;
 }
 
-// Fetch skills related to positions
-$skillsQuery = "SELECT s.skill_name, p.position_name 
+
+$skillsQuery = "SELECT s.skill_name, s.type, p.position_name 
                 FROM skills s
                 JOIN position_skills ps ON s.id = ps.skill_id
                 JOIN positions p ON ps.position_id = p.id";
-$skillsResult = mysqli_query($conn, $skillsQuery);
-$positionSkills = [];
 
-while ($row = mysqli_fetch_assoc($skillsResult)) {
-    $positionSkills[$row['position_name']][] = $row['skill_name'];
+$skillsResult = mysqli_query($conn, $skillsQuery);
+
+if ($skillsResult) {
+    while ($row = mysqli_fetch_assoc($skillsResult)) {
+        $response["positionSkills"][$row["position_name"]][] = [
+            "name" => $row["skill_name"],
+            "type" => $row["type"]
+        ];
+    }
+} else {
+    echo json_encode(["error" => "Failed to fetch skills"]);
+    exit;
 }
 
-// Prepare response
-$response = [
-    "positions" => $positions,
-    "positionSkills" => $positionSkills
-];
-
-
-echo json_encode($response, JSON_PRETTY_PRINT);
+echo json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 ?>

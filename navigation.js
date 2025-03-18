@@ -40,13 +40,33 @@ function navigate(section, event = null) {
             break;
 
         case 'skills':
-            htmlContent = `
-                <h2>Skills Management</h2>
-                <input type="text" id="new-skill" placeholder="Enter skill name">
-                <button onclick="addSkill()">Add Skill</button>
-                <ul id="skills-list"></ul>
-            `;
-            break;
+    htmlContent = `
+        <h2>Modify Skills</h2>
+        <table id="skillsTable" border="1">
+            <thead>
+                <tr id="tableHeader">
+                    <th>Skills</th> <!-- First column for skills -->
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    `;
+    content.innerHTML = htmlContent;
+
+    // Use setTimeout to ensure DOM is updated before loading skills
+    setTimeout(() => {
+        let skillsTable = document.getElementById("skillsTable");
+        if (skillsTable) {
+            loadSkillsTable();
+        } else {
+            console.error("Table elements not found even after navigation.");
+        }
+    }, 100); 
+
+    break;
+
+
+
 
         case 'positions':
             htmlContent = `<h2>Available Positions</h2>
