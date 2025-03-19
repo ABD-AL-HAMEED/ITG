@@ -1,18 +1,62 @@
 function navigate(section, event = null) {
     if (event) event.preventDefault();
-
     let content = document.getElementById('content-area');
     if (!content) {
         console.error("Content area not found.");
         return;
     }
-
     let htmlContent = '';
-
     switch (section) {
         case 'dashboard':
-            htmlContent = `<h2>Overview</h2><p>Manage everything from here.</p>`;
+            // Fetch data from the server
+            fetch('data.php')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+                    }
+                    return response.json(); // Parse the JSON response
+                })
+                .then(data => {
+                    if (data.error) {
+                        // Handle backend-reported errors
+                        content.innerHTML = `<p>Error: ${data.error}</p>`;
+                        return;
+                    }
+                    // Generate the dashboard HTML content dynamically
+                    htmlContent = `
+    <h2>Manage candidates and applications easily from this panel.</h2>
+    <table class="dashboard-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>CV</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${data.candidates.map(candidate => `
+                <tr>
+                    <td>${candidate.id}</td>
+                    <td>${candidate.first_name}</td>
+                    <td>${candidate.last_name}</td>
+                    <td>${candidate.email}</td>
+                    <td>${candidate.phone || 'N/A'}</td>
+                    <td><a href="${candidate.resume_path}" target="_blank">View CV</a></td>
+                </tr>`).join('')}
+        </tbody>
+    </table>`;
+content.innerHTML = htmlContent;
+
+                })
+                .catch(error => {
+                    content.innerHTML = `<p>An unexpected error occurred: ${error.message}</p>`;
+                });
             break;
+
+
 
         case 'candidates':
             htmlContent = `
@@ -40,38 +84,49 @@ function navigate(section, event = null) {
             break;
 
         case 'skills':
-    htmlContent = `
-        <h2>Modify Skills</h2>
-        
-        <!-- Add New Skill Form -->
-        <div class="skill-form">
-            <input type="text" id="new-skill" placeholder="Enter new skill">
-            <button onclick="addSkill()">Add Skill</button>
-        </div>
+    fetch('data.php?action=getSkills')
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                content.innerHTML = `<p>Error: ${data.error}</p>`;
+                return;
+            }
 
-        <!-- Skills Table -->
-        <table id="skillsTable" border="1">
-            <thead>
-                <tr id="tableHeader">
-                    <th>Skills</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    `;
-    content.innerHTML = htmlContent;
-
-    // Wait for the DOM to update, then load skills
-    setTimeout(() => {
-        let skillsTable = document.getElementById("skillsTable");
-        if (skillsTable) {
-            loadSkillsTable();
-        } else {
-            console.error("Table elements not found even after navigation.");
-        }
-    }, 100);
+            // Generate Skills Table
+            htmlContent = `
+                <h2>Manage Skills</h2>
+                <button class="new-skill-btn" onclick="openNewSkillPrompt()">New Skill</button>
+                <table class="skills-table">
+                    <thead>
+                        <tr>
+                            <th>Skill Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.skills.map(skill => `
+                            <tr>
+                                <td>${skill.skill_name}</td>
+                                <td><span class="skill-type ${skill.type.toLowerCase()}">${skill.type}</span></td>
+                                <td>${skill.description || 'N/A'}</td>
+                                <td>
+                                    <button class="edit-skill-btn" onclick="openEditSkillModal(${skill.id})">Edit</button>
+                                    <button class="delete-skill-btn" onclick="deleteSkill(${skill.id})">Delete</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            content.innerHTML = htmlContent;
+        })
+        .catch(error => {
+            content.innerHTML = `<p>An unexpected error occurred: ${error.message}</p>`;
+        });
     break;
+
 
 
 
@@ -105,3 +160,60 @@ function setupNavigation() {
         });
     });
 }
+
+
+function deleteSkill(skillId) {
+    if (confirm(`Are you sure you want to delete skill ID "${skillId}"?`)) {
+        console.log("Deleting skill with ID:", skillId); // Debugging
+
+        fetch(`data.php?action=deleteSkill&id=${skillId}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log("Server Response:", data); // Debugging
+            if (data.success) {
+                alert("Skill deleted successfully.");
+                navigate('skills'); // Refresh the skills section
+            } else {
+                alert("Error deleting skill: " + data.error);
+            }
+        })
+        .catch(error => {
+            alert("An unexpected error occurred: " + error.message);
+        });
+    }
+}
+
+
+
+
+function openNewSkillPrompt() {
+    let skillName = prompt("Enter Skill Name:");
+    if (!skillName) return;
+
+    let skillType = prompt("Enter Skill Type (Technical or Soft):");
+    if (!skillType || (skillType.toLowerCase() !== "technical" && skillType.toLowerCase() !== "soft")) {
+        alert("Invalid skill type. Choose 'Technical' or 'Soft'.");
+        return;
+    }
+
+    let skillDesc = prompt("Enter Skill Description:");
+    if (!skillDesc) return;
+
+    // Send Data to Backend (data.php)
+    fetch('data.php?action=addSkill', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `skillName=${encodeURIComponent(skillName)}&skillType=${encodeURIComponent(skillType)}&skillDesc=${encodeURIComponent(skillDesc)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            navigate('skills'); // Refresh the skills table
+        } else {
+            alert('Error: ' + data.error);
+        }
+    });
+}
+

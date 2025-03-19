@@ -143,3 +143,138 @@ body {
 .skill-checkbox {
     margin-right: 10px;
 }
+/* Table Styling */
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: left;
+    background-color: #ffffff;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-table th, .dashboard-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+}
+
+.dashboard-table th {
+    background-color: #367c96;
+    color: white;
+    font-weight: bold;
+}
+
+.dashboard-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.dashboard-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.dashboard-table a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.dashboard-table a:hover {
+    text-decoration: underline;
+}
+
+/* Skills Table Container */
+.skills-container {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.skills-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.skills-table th, .skills-table td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.skills-table th {
+    background-color: #367c96;
+    color: white;
+    font-weight: bold;
+}
+
+.skills-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.skills-table tr:hover {
+    background-color: #e3f2fd;
+}
+
+/* Skill Type Badge */
+.skill-type {
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+/* Different Colors for Skill Types */
+.technical {
+    background: #007bff;
+    color: white;
+}
+
+.soft {
+    background: #28a745;
+    color: white;
+}
+
+/* Buttons for Edit & Delete */
+.edit-skill-btn, .delete-skill-btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.edit-skill-btn {
+    background-color: #ffc107;
+    color: black;
+}
+
+.delete-skill-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.edit-skill-btn:hover, .delete-skill-btn:hover {
+    opacity: 0.8;
+}
+
+/* "New Skill" Button */
+.new-skill-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    display: block;
+    margin: 15px 0;
+}
+
+.new-skill-btn:hover {
+    background-color: #367c96;
+}

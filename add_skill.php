@@ -1,5 +1,5 @@
 <?php
-include 'db_connection.php';
+include 'db.php';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["skill"])) {
     $skill = trim($_POST["skill"]);
