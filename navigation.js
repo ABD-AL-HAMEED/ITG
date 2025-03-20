@@ -64,8 +64,8 @@ content.innerHTML = htmlContent;
                 <label for="position">Select Position:</label>
                 <select id="position" name="position" onchange="SkillsList()">
                     <option value="">Choose Position</option>
-                    ${typeof positionSkills !== "undefined" 
-                        ? Object.keys(positionSkills).map(pos => `<option value="${pos}">${pos}</option>`).join('')
+                    ${typeof positions !== "undefined" 
+                        ? Object.keys(positions.position_name).map(pos => `<option value="${pos}">${pos}</option>`).join('')
                         : '<option disabled>Data not available</option>'}
                 </select>
                 <div class="skills-container">
@@ -84,11 +84,17 @@ content.innerHTML = htmlContent;
             break;
 
         case 'skills':
-    fetch('data.php?action=getSkills')
+    fetch('data.php')  // Removed '?action=getSkills' since data.php returns all tables
         .then(response => response.json())
         .then(data => {
             if (data.error) {
                 content.innerHTML = `<p>Error: ${data.error}</p>`;
+                return;
+            }
+
+            // Ensure the skills table exists in the response
+            if (!data.skills) {
+                content.innerHTML = `<p>No skills data found</p>`;
                 return;
             }
 
@@ -110,7 +116,7 @@ content.innerHTML = htmlContent;
                             <tr>
                                 <td>${skill.skill_name}</td>
                                 <td><span class="skill-type ${skill.type.toLowerCase()}">${skill.type}</span></td>
-                                <td>${skill.description || 'N/A'}</td>
+                                <td>${skill.Description || 'N/A'}</td>
                                 <td>
                                     <button class="edit-skill-btn" onclick="openEditSkillModal(${skill.id})">Edit</button>
                                     <button class="delete-skill-btn" onclick="deleteSkill(${skill.id})">Delete</button>
@@ -134,8 +140,8 @@ content.innerHTML = htmlContent;
 
         case 'positions':
             htmlContent = `<h2>Available Positions</h2>
-                           <ul>${typeof positionSkills !== "undefined" 
-                                ? Object.keys(positionSkills).map(pos => `<li>${pos}</li>`).join('')
+                           <ul>${typeof position !== "undefined" 
+                                ? Object.keys(position).map(pos => `<li>${pos}</li>`).join('')
                                 : '<li>Data not available</li>'}</ul>`;
             break;
 
