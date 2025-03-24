@@ -58,33 +58,54 @@ content.innerHTML = htmlContent;
 
 
 
-        case 'candidates':
-            htmlContent = `
-                <h2>Candidates</h2>
-                <label for="position">Select Position:</label>
-                <select id="position" name="position" onchange="SkillsList()">
-                    <option value="">Choose Position</option>
-                    ${typeof positions !== "undefined" 
-                        ? Object.keys(positions.position_name).map(pos => `<option value="${pos}">${pos}</option>`).join('')
-                        : '<option disabled>Data not available</option>'}
-                </select>
-                <div class="skills-container">
-                    <div class="skills-column">
-                        <h3>Soft Skills</h3>
-                        <ul id="soft-skills-list"></ul>
-                    </div>
-                    <div class="skills-column">
-                        <h3>Technical Skills</h3>
-                        <ul id="tech-skills-list"></ul>
-                    </div>
-                </div>
-                <h3>Matching Candidates:</h3>
-                <ul id="candidates-list"></ul>
-            `;
-            break;
+            case 'candidates':
+                fetch('data.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        content.innerHTML = `<p>Error: ${data.error}</p>`;
+                        return;
+                    }
+            
+                    if (!data.candidates) {
+                        content.innerHTML = `<p>No candidates data found</p>`;
+                        return;
+                    }
+            
+                    const positions = data.positions;
+            
+                    htmlContent = `
+                        <h2>Candidates</h2>
+                        <label for="position">Select Position:</label>
+                        <select id="position" name="position" onchange="SkillsList()">
+                            <option value="">Choose Position</option>
+                            ${positions && positions.length 
+                                ? positions.map(pos => `<option value="${pos.id}">${pos.position_name}</option>`).join('')
+                                : '<option disabled>Data not available</option>'}
+                        </select>
+                        <div class="skills-container">
+                            <div class="skills-column">
+                                <h3>Soft Skills</h3>
+                                <ul id="soft-skills-list"><li>No skills loaded</li></ul>
+                            </div>
+                            <div class="skills-column">
+                                <h3>Technical Skills</h3>
+                                <ul id="tech-skills-list"><li>No skills loaded</li></ul>
+                            </div>
+                        </div>
+                        <h3>Matching Candidates:</h3>
+                        <ul id="candidates-list"><li>No candidates to display</li></ul>
+                    `;
+                    content.innerHTML = htmlContent;
+                })
+                .catch(error => {
+                    content.innerHTML = `<p>An unexpected error occurred: ${error.message}</p>`;
+                });
+                break;
+
 
         case 'skills':
-    fetch('data.php')  // Removed '?action=getSkills' since data.php returns all tables
+    fetch('data.php') 
         .then(response => response.json())
         .then(data => {
             if (data.error) {
@@ -125,6 +146,7 @@ content.innerHTML = htmlContent;
                         `).join('')}
                     </tbody>
                 </table>
+
             `;
             content.innerHTML = htmlContent;
         })
@@ -132,11 +154,6 @@ content.innerHTML = htmlContent;
             content.innerHTML = `<p>An unexpected error occurred: ${error.message}</p>`;
         });
     break;
-
-
-
-
-
 
         case 'positions':
             htmlContent = `<h2>Available Positions</h2>
@@ -167,20 +184,26 @@ function setupNavigation() {
     });
 }
 
-
 function deleteSkill(skillId) {
     if (confirm(`Are you sure you want to delete skill ID "${skillId}"?`)) {
-        console.log("Deleting skill with ID:", skillId); // Debugging
+        console.log("Deleting skill with ID:", skillId);
 
-        fetch(`data.php?action=deleteSkill&id=${skillId}`)
+        fetch("delete_skill.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: `skillId=${encodeURIComponent(skillId)}`,
+        })
         .then(response => response.json())
         .then(data => {
             console.log("Server Response:", data); // Debugging
+
             if (data.success) {
                 alert("Skill deleted successfully.");
                 navigate('skills'); // Refresh the skills section
             } else {
-                alert("Error deleting skill: " + data.error);
+                alert("Error: " + (data.error || "Failed to delete skill."));
             }
         })
         .catch(error => {
@@ -189,6 +212,55 @@ function deleteSkill(skillId) {
     }
 }
 
+function openEditSkillModal(skillId) {
+    // Fetch skill details using AJAX
+    fetch(`edit_skill.php?skillId=${skillId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Populate modal fields
+                document.getElementById("editSkillId").value = data.skill.id;
+                document.getElementById("editSkillName").value = data.skill.name;
+                document.getElementById("editSkillType").value = data.skill.type;
+                document.getElementById("editSkillDescription").value = data.skill.description;
+
+                // Show the modal
+                document.getElementById("editSkillModal").style.display = "block";
+            } else {
+                alert("Error fetching skill details: " + data.error);
+            }
+        })
+        .catch(error => console.error("Error:", error));
+}
+
+// Function to submit the updated skill
+function updateSkill() {
+    let skillId = document.getElementById("editSkillId").value;
+    let skillName = document.getElementById("editSkillName").value;
+    let skillType = document.getElementById("editSkillType").value;
+    let skillDescription = document.getElementById("editSkillDescription").value;
+
+    let formData = new FormData();
+    formData.append("skillId", skillId);
+    formData.append("skillName", skillName);
+    formData.append("skillType", skillType);
+    formData.append("skillDescription", skillDescription);
+
+    fetch("edit_skill.php", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Skill updated successfully!");
+            location.reload(); // Refresh page or update UI dynamically
+        } else {
+            alert("Error updating skill: " + data.error);
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
 
 
 

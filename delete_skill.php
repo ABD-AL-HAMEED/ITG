@@ -1,38 +1,40 @@
 <?php
-require 'db.php'; // Ensure this connects to the database
+include 'db.php';
+header("Content-Type: application/json");
 
-header('Content-Type: application/json');
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Get raw input for debugging
+    $raw_input = file_get_contents("php://input");
+    parse_str($raw_input, $received_data); // Convert raw input into an associative array
 
-// Debugging: Check if POST data exists
-$input_data = file_get_contents("php://input");
-parse_str($input_data, $_POST);
+    // Extract skillId safely
+    $skillId = isset($_POST['skillId']) ? $_POST['skillId'] : (isset($received_data['skillId']) ? $received_data['skillId'] : null);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!isset($_POST['id']) || empty($_POST['id'])) {
+    if (!$skillId) {
         echo json_encode([
             "success" => false,
             "error" => "Missing skill ID",
-            "received_data" => $_POST, // Debugging info
-            "raw_input" => $input_data  // Debugging raw input
+            "received_data" => $received_data,
+            "raw_input" => $raw_input
         ]);
         exit;
     }
 
-    $skillId = intval($_POST['id']); // Sanitize input
+    // Database connection (Assume db.php is included)
+    require_once "db.php";
 
-    // Prepare the delete query
     $stmt = $conn->prepare("DELETE FROM skills WHERE id = ?");
     $stmt->bind_param("i", $skillId);
 
     if ($stmt->execute()) {
         echo json_encode(["success" => true]);
     } else {
-        echo json_encode(["success" => false, "error" => "Failed to delete skill"]);
+        echo json_encode(["success" => false, "error" => "Database error"]);
     }
 
     $stmt->close();
     $conn->close();
 } else {
-    echo json_encode(["success" => false, "error" => "Invalid request method"]);
+    echo json_encode(["success" => false, "error" => "Invalid request"]);
 }
 ?>
