@@ -55,15 +55,18 @@ function navigate(section, event = null) {
                             </tr>
                         </thead>
                         <tbody>
-                            ${data.candidates.map(candidate => `
+                        ${data.candidates
+                            .filter(candidate => candidate.is_favorite === "1") // Only include favorite candidates
+                            .map(candidate => `
                                 <tr>
                                     <td>${candidate.id}</td>
                                     <td>${candidate.first_name}</td>
                                     <td>${candidate.last_name}</td>
-                                    <td>${candidate.email}</td>
-                                    <td>${candidate.phone || 'N/A'}</td>
+                                    <td><a href="mailto:${candidate.email}" target="_blank">${candidate.email || 'N/A'}</a></td>
+                                    <td><a href="tel:${candidate.phone}" target="_blank">${candidate.phone || 'N/A'}</a></td>
                                     <td><a href="${candidate.resume_path}" target="_blank">View CV</a></td>
-                                </tr>`).join('')}
+                                </tr>
+                            `).join('')}
                         </tbody>
                     </table>`;
                 break;
@@ -95,77 +98,137 @@ function navigate(section, event = null) {
 
             case 'skills':
                 htmlContent = `
-                    <h2>Manage Skills</h2>
-                    <button class="new-skill-btn" onclick="openNewSkillPrompt()">New Skill</button>
-                    <table class="skills-table">
-                        <thead>
-                            <tr>
-                                <th>Skill Name</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${data.skills.map(skill => `
+                        <h2>Manage Skills</h2>
+                        <button class="new-skill-btn" onclick="openNewSkillPrompt()">New Skill</button>
+                        <table class="skills-table">
+                            <thead>
                                 <tr>
-                                    <td>${skill.skill_name}</td>
-                                    <td><span class="skill-type ${skill.type.toLowerCase()}">${skill.type}</span></td>
-                                    <td>${skill.Description || 'N/A'}</td>
-                                    <td>
-                                        <button class="edit-skill-btn" onclick="openEditSkillModal(${skill.id})">Edit</button>
-                                        <button class="delete-skill-btn" onclick="deleteSkill(${skill.id})">Delete</button>
-                                    </td>
-                                </tr>`).join('')}
-                        </tbody>
-                    </table>
-                `;
+                                    <th>Skill Name</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.skills.map(skill => `
+                                    <tr>
+                                        <td>${skill.skill_name}</td>
+                                        <td><span class="skill-type ${skill.type.toLowerCase()}">${skill.type}</span></td>
+                                        <td>${skill.Description || 'N/A'}</td>
+                                        <td>
+                                            <button class="edit-skill-btn" onclick="openEditSkillModal(${skill.id})">Edit</button>
+                                            <button class="delete-skill-btn" onclick="deleteSkill(${skill.id})">Delete</button>
+                                        </td>
+                                    </tr>`).join('')}
+                            </tbody>
+                        </table>
+                        <!-- Edit Skill Modal -->
+                        <div id="editSkillModal" class="modal-overlay">
+                        <div class="modal-card">
+                            <h2>Edit Skill</h2>
+                            <input type="hidden" id="editSkillId" />
+
+                            <div class="form-group">
+                            <label for="editSkillName">Skill Name</label>
+                            <input type="text" id="editSkillName" class="modal-input" />
+                            </div>
+
+                            <div class="form-group">
+                            <label for="editSkillType">Skill Type</label>
+                            <select id="editSkillType" class="modal-input">
+                                <option value="Technical">Technical</option>
+                                <option value="Soft">Soft</option>
+                            </select>
+                            </div>
+
+                            <div class="form-group">
+                            <label for="editSkillDescription">Description</label>
+                            <textarea id="editSkillDescription" class="modal-input" rows="4"></textarea>
+                            </div>
+
+                            <div class="modal-actions">
+                            <button class="edit-skill-btn" onclick="updateSkill()">Save</button>
+                            <button class="delete-skill-btn" onclick="closeSkillModal()">Cancel</button>
+                            </div>
+                        </div>
+                        </div>
+                    `;
                 break;
 
             case 'positions':
                 htmlContent = `
-        <h2>Available Positions</h2>
-        <button class="new-pos-btn" onclick="createPosition()">New Position</button>
-        <table class="skills-table">
-            <thead>
-                <tr>
-                    <th>Position Name</th>
-                    <th>Description</th>
-                    <th>Required Experience</th>
-                    <th>Skills</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${data.positions?.map(pos => {
+                        <h2>Available Positions</h2>
+                        <button class="new-pos-btn" onclick="createPosition()">New Position</button>
+                        <table class="skills-table">
+                            <thead>
+                                <tr>
+                                    <th>Position Name</th>
+                                    <th>Description</th>
+                                    <th>Required Experience</th>
+                                    <th>Skills</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.positions?.map(pos => {
                     const skillIds = data.position_skills
                         .filter(ps => parseInt(ps.position_id) === parseInt(pos.id))
                         .map(ps => parseInt(ps.skill_id));
 
-                    const skillOptions = data.skills.map(skill => `
-                        <label style="display: block; margin-bottom: 4px;">
-                            <input type="checkbox" name="skill-checkbox-${pos.id}" value="${skill.id}" 
-                                ${skillIds.includes(parseInt(skill.id)) ? 'checked' : ''}>
-                            ${skill.skill_name}
-                        </label>
-                    `).join('');
-
                     return `
-                        <tr id="position-row-${pos.id}">
-                            <td class="position-name">${pos.position_name}</td>
-                            <td class="position-desc">${pos.description || 'N/A'}</td>
-                            <td class="position-exp">${pos.Required_Experience ? pos.Required_Experience + ' Years' : 'N/A'}</td>
-                            <td class="position-skills">${skillIds.length ? data.skills.filter(skill => skillIds.includes(parseInt(skill.id))).map(s => s.skill_name).join(', ') : 'No skills linked'}</td>
-                            <td class="position-actions">
-                                <button class="edit-pos-btn" onclick="startEditPosition(${pos.id})">Edit</button>
-                                <button class="delete-pos-btn" onclick="deletePosition(${pos.id})">Delete</button>
-                            </td>
-                        </tr>
-                    `;
+                                        <tr id="position-row-${pos.id}">
+                                            <td class="position-name">${pos.position_name}</td>
+                                            <td class="position-desc">${pos.description || 'N/A'}</td>
+                                            <td class="position-exp">${pos.Required_Experience ? pos.Required_Experience + ' Years' : 'N/A'}</td>
+                                            <td class="position-skills">${skillIds.length ? data.skills.filter(skill => skillIds.includes(parseInt(skill.id))).map(s => s.skill_name).join(', ') : 'No skills linked'}</td>
+                                            <td class="position-actions">
+                                                <button class="edit-pos-btn" onclick="editPosition(${pos.id})">Edit</button>
+                                                <button class="delete-pos-btn" onclick="deletePosition(${pos.id})">Delete</button>
+                                            </td>
+                                        </tr>
+                                    `;
                 }).join('')}
-                </tbody>
-                </table>
-                `;
+                            </tbody>
+                        </table>
+                        
+                        <!-- Edit Position Modal -->
+                        <div id="editPositionModal" class="modal-overlay">
+                            <div class="modal-card">
+                                <h2>Edit Position</h2>
+                                <input type="hidden" id="editPositionId" />
+                
+                                <div class="form-group">
+                                    <label for="editPositionName">Position Name</label>
+                                    <input type="text" id="editPositionName" class="modal-input" />
+                                </div>
+                
+                                <div class="form-group">
+                                    <label for="editPositionDescription">Description</label>
+                                    <textarea id="editPositionDescription" class="modal-input" rows="3"></textarea>
+                                </div>
+                
+                                <div class="form-group">
+                                    <label for="editPositionExperience">Required Experience (Years)</label>
+                                    <input type="number" id="editPositionExperience" class="modal-input" min="0" />
+                                </div>
+                
+                                <div class="form-group">
+                                    <label>Skills</label>
+                                    <div class="dropdown-checkbox">
+                                        <button type="button" class="dropdown-toggle" onclick="toggleSkillDropdown('edit')">Select Skills</button>
+                                        <div class="dropdown-menu" id="dropdown-menu-edit">
+                                            <!-- Skill checkboxes will be injected here -->
+                                        </div>
+                                    </div>
+                                </div>
+                
+                                <div class="modal-actions">
+                                    <button class="edit-pos-btn" onclick="saveEditPosition()">Save</button>
+                                    <button class="delete-pos-btn" onclick="closeEditPositionModal()">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 break;
 
             default:
@@ -179,75 +242,84 @@ function navigate(section, event = null) {
     });
 }
 
-function startEditPosition(id) {
-    fetchData().then(data => {
-        const pos = data.positions.find(p => parseInt(p.id) === id);
-        if (!pos) return;
+//////////////////////////////////////////////////////Navigation////////////////////////////////////////////////
 
-        const skillIds = data.position_skills
-            .filter(ps => parseInt(ps.position_id) === id)
-            .map(ps => parseInt(ps.skill_id));
-
-        const allSkills = data.skills;
-
-        const skillOptions = allSkills.map(skill => `
-            <option value="${skill.id}" ${skillIds.includes(parseInt(skill.id)) ? 'selected' : ''}>
-                ${skill.skill_name}
-            </option>
-        `).join('');
-
-        const row = document.getElementById(`position-row-${id}`);
-        row.innerHTML = `
-            <td><input type="text" id="edit-name-${id}" value="${pos.position_name}"></td>
-            <td><input type="text" id="edit-desc-${id}" value="${pos.description || ''}"></td>
-            <td><input type="number" id="edit-exp-${id}" value="${pos.Required_Experience || ''}"></td>
-            <td>
-    <div class="dropdown-checkbox" id="skill-dropdown-${pos.id}">
-        <button type="button" class="dropdown-toggle" onclick="toggleSkillDropdown(${pos.id})">
-            Select Skills
-        </button>
-        <div class="dropdown-menu" id="dropdown-menu-${pos.id}">
-            ${data.skills.map(skill => `
-                <label>
-                    <input type="checkbox" name="skill-checkbox-${pos.id}" value="${skill.id}" 
-                        ${skillIds.includes(parseInt(skill.id)) ? 'checked' : ''}>
-                    ${skill.skill_name}
-                </label><br>
-            `).join('')}
-        </div>
-    </div>
-</td>
-            <td>
-                <button class="edit-pos-btn" onclick="saveEditPosition(${id})">Save</button>
-                <button class="delete-pos-btn" onclick="navigate('positions')">Cancel</button>
-            </td>
-        `;
+function setupNavigation() {
+    document.querySelectorAll(".sidebar a").forEach(link => {
+        link.addEventListener("click", function (event) {
+            event.preventDefault();
+            let section = this.getAttribute("data-section");
+            if (section) {
+                navigate(section, event);
+            } else {
+                console.error("Invalid navigation link: Missing 'data-section' attribute.");
+            }
+        });
     });
 }
 
-function toggleSkillDropdown(id) {
-    const menu = document.getElementById(`dropdown-menu-${id}`);
-    menu.classList.toggle('show');
+///////////////////////////////////////////////////// Positions ///////////////////////////////////////////////////
+
+async function fetchData() {
+    try {
+        const response = await fetch('data.php');
+        const data = await response.json();
+
+        if (!data.positions || !data.skills || !data.position_skills) {
+            throw new Error("Missing required tables in the response.");
+        }
+
+        return data;
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        return { positions: [], skills: [], position_skills: [] }; // Prevent errors
+    }
 }
 
-// Close dropdown if clicked outside
-document.addEventListener('click', function (event) {
-    if (!event.target.closest('.dropdown-checkbox')) {
-        document.querySelectorAll('.dropdown-menu').forEach(menu => {
-            menu.classList.remove('show');
-        });
-    }
-});
+function editPosition(id) {
+    fetchData().then(data => {
+        if (!data) return;
 
+        const pos = data.positions?.find(p => parseInt(p.id) === id);
+        if (!pos) {
+            alert("Position not found.");
+            return;
+        }
 
-function saveEditPosition(id) {
-    const name = document.getElementById(`edit-name-${id}`).value;
-    const desc = document.getElementById(`edit-desc-${id}`).value;
-    const exp = document.getElementById(`edit-exp-${id}`).value;
+        const skillIds = (data.position_skills || [])
+            .filter(ps => parseInt(ps.position_id) === id)
+            .map(ps => parseInt(ps.skill_id));
 
-    // Get all checked checkboxes
-    const skillCheckboxes = document.querySelectorAll(`input[name="skill-checkbox-${id}"]:checked`);
-    const selectedSkills = Array.from(skillCheckboxes).map(cb => cb.value).join(',');
+        const skillsHTML = (data.skills || []).map(skill => `
+            <label style="display: block; margin-bottom: 6px;">
+                <input type="checkbox" name="edit-skill-checkbox" value="${skill.id}"
+                ${skillIds.includes(parseInt(skill.id)) ? 'checked' : ''}>
+                ${skill.skill_name}
+            </label>
+        `).join('');
+
+        document.getElementById('editPositionId').value = pos.id;
+        document.getElementById('editPositionName').value = pos.position_name;
+        document.getElementById('editPositionDescription').value = pos.description || '';
+        document.getElementById('editPositionExperience').value = pos.Required_Experience || '';
+        document.getElementById('dropdown-menu-edit').innerHTML = skillsHTML;
+        document.getElementById('editPositionModal').style.display = 'flex';
+    });
+}
+
+function closeEditPositionModal() {
+    document.getElementById('editPositionModal').style.display = 'none';
+}
+
+function saveEditPosition() {
+    const id = document.getElementById("editPositionId").value;
+    const name = document.getElementById("editPositionName").value;
+    const desc = document.getElementById("editPositionDescription").value;
+    const exp = document.getElementById("editPositionExperience").value;
+
+    const selectedSkills = Array.from(document.querySelectorAll('input[name="edit-skill-checkbox"]:checked'))
+        .map(cb => cb.value)
+        .join(',');
 
     fetch('manage_pos.php?action=update', {
         method: 'POST',
@@ -258,24 +330,22 @@ function saveEditPosition(id) {
         .then(data => {
             if (data.success) {
                 alert("Position updated successfully!");
+                closeEditPositionModal();
                 clearCache();
                 navigate('positions');
             } else {
                 alert("Error: " + (data.error || "Update failed"));
             }
-        });
+        })
+        .catch(err => console.error("Error updating position:", err));
 }
-
-
 
 function deletePosition(id) {
     if (!confirm("Are you sure you want to delete this position?")) return;
 
     fetch('manage_pos.php?action=delete', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `id=${encodeURIComponent(id)}`
     })
         .then(res => res.json())
@@ -291,52 +361,6 @@ function deletePosition(id) {
         .catch(error => alert("Unexpected error: " + error.message));
 }
 
-function editPosition(id) {
-    fetchData().then(data => {
-        const pos = data.positions.find(p => parseInt(p.id) === id);
-        if (!pos) {
-            alert("Position not found.");
-            return;
-        }
-
-        const name = prompt("Edit Position Name:", pos.position_name);
-        if (!name) return;
-
-        const desc = prompt("Edit Description:", pos.description || '');
-        const exp = prompt("Edit Required Experience (in years):", pos.Required_Experience || '');
-
-        // Get currently assigned skills
-        const assignedSkills = data.position_skills
-            .filter(ps => parseInt(ps.position_id) === id)
-            .map(ps => ps.skill_id.toString());
-
-        const skillOptions = data.skills.map(skill => {
-            const isSelected = assignedSkills.includes(skill.id.toString());
-            return `${isSelected ? '[x]' : '[ ]'} ${skill.id}: ${skill.skill_name}`;
-        }).join('\n');
-
-        const selected = prompt("Edit Skill IDs separated by commas:\n" + skillOptions, assignedSkills.join(','));
-        const selectedSkills = selected?.split(',').map(s => s.trim()).filter(Boolean).join(',');
-
-        fetch('manage_positions.php?action=update', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=${id}&position_name=${encodeURIComponent(name)}&description=${encodeURIComponent(desc)}&Required_Experience=${encodeURIComponent(exp)}&skills=${encodeURIComponent(selectedSkills)}`
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Position updated successfully!");
-                    clearCache();
-                    navigate('positions');
-                } else {
-                    alert("Error updating position: " + (data.error || "Unknown error"));
-                }
-            });
-    });
-}
-
-
 function createPosition() {
     fetchData().then(data => {
         const name = prompt("Enter Position Name:");
@@ -345,12 +369,11 @@ function createPosition() {
         const desc = prompt("Enter Description:", '');
         const exp = prompt("Enter Required Experience (in years):", '');
 
-        // Skill selection
         const skillOptions = data.skills.map(skill => `${skill.id}: ${skill.skill_name}`).join('\n');
         const selected = prompt("Enter Skill IDs separated by commas:\n" + skillOptions, '');
         const selectedSkills = selected?.split(',').map(s => s.trim()).filter(Boolean).join(',');
 
-        fetch('manage_positions.php?action=create', {
+        fetch('manage_pos.php?action=create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `position_name=${encodeURIComponent(name)}&description=${encodeURIComponent(desc)}&Required_Experience=${encodeURIComponent(exp)}&skills=${encodeURIComponent(selectedSkills)}`
@@ -358,7 +381,7 @@ function createPosition() {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    alert("Position created with skills!");
+                    alert("Position created successfully!");
                     clearCache();
                     navigate('positions');
                 } else {
@@ -368,7 +391,20 @@ function createPosition() {
     });
 }
 
+// Toggle dropdown menu
+function toggleSkillDropdown(id) {
+    document.getElementById(`dropdown-menu-${id}`).classList.toggle('show');
+}
 
+// Close dropdown when clicking outside
+document.addEventListener('click', function (event) {
+    if (!event.target.closest('.dropdown-checkbox')) {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show'));
+    }
+});
+
+
+//////////////////////////////////////////////////////////////////////Candidates///////////////////////////////////////////
 
 let filteredCandidates = [];
 
@@ -456,8 +492,6 @@ function toggleFavorite(candidateId, makeFavorite) {
         });
 }
 
-
-
 function renderCandidateList(list) {
     const candidatesList = document.getElementById('candidates-list');
 
@@ -489,178 +523,7 @@ function filterCandidates() {
     renderCandidateList(filtered);
 }
 
-
-
-function SkillsList() {
-    const selectedPositionId = parseInt(document.getElementById('position').value);
-    const softSkillsList = document.getElementById('soft-skills-list');
-    const techSkillsList = document.getElementById('tech-skills-list');
-
-    // Clear current skill lists
-    softSkillsList.innerHTML = '';
-    techSkillsList.innerHTML = '';
-
-    if (isNaN(selectedPositionId)) {
-        softSkillsList.innerHTML = '<li>No skills loaded</li>';
-        techSkillsList.innerHTML = '<li>No skills loaded</li>';
-        return;
-    }
-
-    fetchData().then(data => {
-        const { skills, position_skills } = data;
-
-        // Get skill IDs for this position (as numbers)
-        const relatedSkillIds = position_skills
-            .filter(ps => ps.position_id === selectedPositionId)
-            .map(ps => ps.skill_id);
-
-        // Filter skills using numeric comparison
-        const relatedSkills = skills.filter(skill =>
-            relatedSkillIds.includes(parseInt(skill.id))
-        );
-
-        const softSkills = relatedSkills.filter(skill => skill.type.toLowerCase() === 'soft');
-        const techSkills = relatedSkills.filter(skill => skill.type.toLowerCase() === 'technical');
-
-        softSkillsList.innerHTML = softSkills.length
-            ? softSkills.map(skill => `<li>${skill.skill_name}</li>`).join('')
-            : '<li>No soft skills found</li>';
-
-        techSkillsList.innerHTML = techSkills.length
-            ? techSkills.map(skill => `<li>${skill.skill_name}</li>`).join('')
-            : '<li>No technical skills found</li>';
-    }).catch(err => {
-        console.error("Error loading skills:", err);
-        softSkillsList.innerHTML = techSkillsList.innerHTML = '<li>Error loading skills</li>';
-    });
-}
-
-
-
-function setupNavigation() {
-    document.querySelectorAll(".sidebar a").forEach(link => {
-        link.addEventListener("click", function (event) {
-            event.preventDefault();
-            let section = this.getAttribute("data-section");
-            if (section) {
-                navigate(section, event);
-            } else {
-                console.error("Invalid navigation link: Missing 'data-section' attribute.");
-            }
-        });
-    });
-}
-
-function deleteSkill(skillId) {
-    if (confirm(`Are you sure you want to delete skill ID "${skillId}"?`)) {
-        console.log("Deleting skill with ID:", skillId);
-
-        fetch("delete_skill.php", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: `skillId=${encodeURIComponent(skillId)}`,
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Server Response:", data); // Debugging
-
-                if (data.success) {
-                    alert("Skill deleted successfully.");
-                    navigate('skills'); // Refresh the skills section
-                } else {
-                    alert("Error: " + (data.error || "Failed to delete skill."));
-                }
-            })
-            .catch(error => {
-                alert("An unexpected error occurred: " + error.message);
-            });
-    }
-}
-
-function openEditSkillModal(skillId) {
-    // Fetch skill details using AJAX
-    fetch(`edit_skill.php?skillId=${skillId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Populate modal fields
-                document.getElementById("editSkillId").value = data.skill.id;
-                document.getElementById("editSkillName").value = data.skill.name;
-                document.getElementById("editSkillType").value = data.skill.type;
-                document.getElementById("editSkillDescription").value = data.skill.description;
-
-                // Show the modal
-                document.getElementById("editSkillModal").style.display = "block";
-            } else {
-                alert("Error fetching skill details: " + data.error);
-            }
-        })
-        .catch(error => console.error("Error:", error));
-}
-
-// Function to submit the updated skill
-function updateSkill() {
-    let skillId = document.getElementById("editSkillId").value;
-    let skillName = document.getElementById("editSkillName").value;
-    let skillType = document.getElementById("editSkillType").value;
-    let skillDescription = document.getElementById("editSkillDescription").value;
-
-    let formData = new FormData();
-    formData.append("skillId", skillId);
-    formData.append("skillName", skillName);
-    formData.append("skillType", skillType);
-    formData.append("skillDescription", skillDescription);
-
-    fetch("edit_skill.php", {
-        method: "POST",
-        body: formData
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert("Skill updated successfully!");
-                location.reload(); // Refresh page or update UI dynamically
-            } else {
-                alert("Error updating skill: " + data.error);
-            }
-        })
-        .catch(error => console.error("Error:", error));
-}
-
-
-
-function openNewSkillPrompt() {
-    let skillName = prompt("Enter Skill Name:");
-    if (!skillName) return;
-
-    let skillType = prompt("Enter Skill Type (Technical or Soft):");
-    if (!skillType || (skillType.toLowerCase() !== "technical" && skillType.toLowerCase() !== "soft")) {
-        alert("Invalid skill type. Choose 'Technical' or 'Soft'.");
-        return;
-    }
-
-    let skillDesc = prompt("Enter Skill Description:");
-    if (!skillDesc) return;
-
-    // Send Data to Backend (data.php)
-    fetch('data.php?action=addSkill', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: `skillName=${encodeURIComponent(skillName)}&skillType=${encodeURIComponent(skillType)}&skillDesc=${encodeURIComponent(skillDesc)}`
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                navigate('skills'); // Refresh the skills table
-            } else {
-                alert('Error: ' + data.error);
-            }
-        });
-}
+/////////////////////////////////////////////////////////Dashboard Report///////////////////////////////////////////////////////
 
 function loadCVReport() {
     let reportContainer = document.getElementById('cv-report');
@@ -718,5 +581,161 @@ function loadCVReport() {
         .catch(error => {
             reportContainer.innerHTML = `<p>An error occurred: ${error.message}</p>`;
             reportContainer.style.display = 'block'; // Show error message also
+        });
+}
+
+//////////////////////////////////////////skills////////////////////////////////////////////////////
+
+function SkillsList() {
+    const selectedPositionId = parseInt(document.getElementById('position').value);
+    const softSkillsList = document.getElementById('soft-skills-list');
+    const techSkillsList = document.getElementById('tech-skills-list');
+
+    // Clear current skill lists
+    softSkillsList.innerHTML = '';
+    techSkillsList.innerHTML = '';
+
+    if (isNaN(selectedPositionId)) {
+        softSkillsList.innerHTML = '<li>No skills loaded</li>';
+        techSkillsList.innerHTML = '<li>No skills loaded</li>';
+        return;
+    }
+
+    fetchData().then(data => {
+        const { skills, position_skills } = data;
+
+        // Get skill IDs for this position (as numbers)
+        const relatedSkillIds = position_skills
+            .filter(ps => ps.position_id === selectedPositionId)
+            .map(ps => ps.skill_id);
+
+        // Filter skills using numeric comparison
+        const relatedSkills = skills.filter(skill =>
+            relatedSkillIds.includes(parseInt(skill.id))
+        );
+
+        const softSkills = relatedSkills.filter(skill => skill.type.toLowerCase() === 'soft');
+        const techSkills = relatedSkills.filter(skill => skill.type.toLowerCase() === 'technical');
+
+        softSkillsList.innerHTML = softSkills.length
+            ? softSkills.map(skill => `<li>${skill.skill_name}</li>`).join('')
+            : '<li>No soft skills found</li>';
+
+        techSkillsList.innerHTML = techSkills.length
+            ? techSkills.map(skill => `<li>${skill.skill_name}</li>`).join('')
+            : '<li>No technical skills found</li>';
+    }).catch(err => {
+        console.error("Error loading skills:", err);
+        softSkillsList.innerHTML = techSkillsList.innerHTML = '<li>Error loading skills</li>';
+    });
+}
+
+function deleteSkill(skillId) {
+    if (confirm(`Are you sure you want to delete skill ID "${skillId}"?`)) {
+        fetch("manage_skills.php?action=delete", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: `skill_id=${encodeURIComponent(skillId)}`,
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Skill deleted successfully.");
+                    clearCache();
+                    navigate('skills');
+                } else {
+                    alert("Error: " + (data.error || "Failed to delete skill."));
+                }
+            })
+            .catch(error => {
+                alert("An unexpected error occurred: " + error.message);
+            });
+    }
+}
+
+function closeSkillModal() {
+    document.getElementById("editSkillModal").style.display = "none";
+}
+
+function openEditSkillModal(skillId) {
+    fetch(`manage_skills.php?action=get&skillId=${skillId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("editSkillId").value = data.skill.id;
+                document.getElementById("editSkillName").value = data.skill.skill_name;
+                document.getElementById("editSkillType").value = data.skill.type;
+                document.getElementById("editSkillDescription").value = data.skill.Description;
+
+                document.getElementById("editSkillModal").style.display = "flex"; // show as flex to center it
+            } else {
+                alert("Error fetching skill details: " + data.error);
+            }
+        })
+        .catch(error => console.error("Error:", error));
+}
+
+
+function updateSkill() {
+    let skillId = document.getElementById("editSkillId").value;
+    let skillName = document.getElementById("editSkillName").value;
+    let skillType = document.getElementById("editSkillType").value;
+    let skillDescription = document.getElementById("editSkillDescription").value;
+
+    const body = `skill_id=${encodeURIComponent(skillId)}&skill_name=${encodeURIComponent(skillName)}&skill_type=${encodeURIComponent(skillType)}&skill_description=${encodeURIComponent(skillDescription)}`;
+
+    fetch("manage_skills.php?action=update", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Skill updated successfully!");
+                clearCache();
+                navigate('skills');
+            } else {
+                alert("Error updating skill: " + data.error);
+            }
+        })
+        .catch(error => console.error("Error:", error));
+}
+
+function openNewSkillPrompt() {
+    let skillName = prompt("Enter Skill Name:");
+    if (!skillName) return;
+
+    let skillType = prompt("Enter Skill Type (Technical or Soft):");
+    if (!skillType || (skillType.toLowerCase() !== "technical" && skillType.toLowerCase() !== "soft")) {
+        alert("Invalid skill type. Choose 'Technical' or 'Soft'.");
+        return;
+    }
+
+    let skillDesc = prompt("Enter Skill Description:");
+    if (!skillDesc) return;
+
+    const body = `skill_name=${encodeURIComponent(skillName)}&skill_type=${encodeURIComponent(skillType)}&skill_description=${encodeURIComponent(skillDesc)}`;
+
+    fetch('manage_skills.php?action=create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Skill added successfully!");
+                clearCache();
+                navigate('skills');
+            } else {
+                alert('Error: ' + data.error);
+            }
         });
 }
