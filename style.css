@@ -295,6 +295,7 @@ body {
 
 
 /* "New Skill" Button */
+.new-pos-btn,
 .new-skill-btn {
     background-color: #4CAF50;
     color: white;
@@ -308,6 +309,7 @@ body {
     margin: 15px 0;
 }
 
+.new-pos-btn:hover,
 .new-skill-btn:hover {
     background-color: #367c96;
 }
@@ -344,4 +346,39 @@ body {
 .fav-btn:hover {
     background-color: #3289a8;
     transform: scale(1.1);
+}
+
+.dropdown-checkbox {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.dropdown-toggle {
+    width: 100%;
+    padding: 6px 10px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    text-align: left;
+    border-radius: 4px;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 110%;
+    left: 0;
+    right: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    z-index: 100;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-menu.show {
+    display: block;
 }

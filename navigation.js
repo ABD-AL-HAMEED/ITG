@@ -124,34 +124,49 @@ function navigate(section, event = null) {
 
             case 'positions':
                 htmlContent = `
-                        <h2>Available Positions</h2>
-                        <button class="new-pos-btn" onclick="createPosition()">New Position</button>
-                        <table class="skills-table">
-                            <thead>
-                                <tr>
-                                    <th>Position Name</th>
-                                    <th>Description</th>
-                                    <th>Required Experience</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${data.positions?.map(pos => `
-                                    <tr>
-                                        <td>${pos.position_name}</td>
-                                        <td>${pos.description || 'N/A'}</td>
-                                        <td>${pos.Required_Experience ? pos.Required_Experience + ' Years' : 'N/A'}</td>
-                                        <td>
-                                        <button class="edit-pos-btn" onclick="editPosition(${pos.id})">Edit</button>
-                                        <button class="delete-pos-btn" onclick="deletePosition(${pos.id})">Delete</button>
-                                        </td>
-                                    </tr>
-                                `).join('') || '<tr><td colspan="3">No positions available</td></tr>'}
-                            </tbody>
-                        </table>
-                    `;
-                break;
+        <h2>Available Positions</h2>
+        <button class="new-pos-btn" onclick="createPosition()">New Position</button>
+        <table class="skills-table">
+            <thead>
+                <tr>
+                    <th>Position Name</th>
+                    <th>Description</th>
+                    <th>Required Experience</th>
+                    <th>Skills</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${data.positions?.map(pos => {
+                    const skillIds = data.position_skills
+                        .filter(ps => parseInt(ps.position_id) === parseInt(pos.id))
+                        .map(ps => parseInt(ps.skill_id));
 
+                    const skillOptions = data.skills.map(skill => `
+                        <label style="display: block; margin-bottom: 4px;">
+                            <input type="checkbox" name="skill-checkbox-${pos.id}" value="${skill.id}" 
+                                ${skillIds.includes(parseInt(skill.id)) ? 'checked' : ''}>
+                            ${skill.skill_name}
+                        </label>
+                    `).join('');
+
+                    return `
+                        <tr id="position-row-${pos.id}">
+                            <td class="position-name">${pos.position_name}</td>
+                            <td class="position-desc">${pos.description || 'N/A'}</td>
+                            <td class="position-exp">${pos.Required_Experience ? pos.Required_Experience + ' Years' : 'N/A'}</td>
+                            <td class="position-skills">${skillIds.length ? data.skills.filter(skill => skillIds.includes(parseInt(skill.id))).map(s => s.skill_name).join(', ') : 'No skills linked'}</td>
+                            <td class="position-actions">
+                                <button class="edit-pos-btn" onclick="startEditPosition(${pos.id})">Edit</button>
+                                <button class="delete-pos-btn" onclick="deletePosition(${pos.id})">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('')}
+                </tbody>
+                </table>
+                `;
+                break;
 
             default:
                 htmlContent = `<h2>Overview</h2><p>Manage candidates and applications from this panel.</p>`;
@@ -164,6 +179,95 @@ function navigate(section, event = null) {
     });
 }
 
+function startEditPosition(id) {
+    fetchData().then(data => {
+        const pos = data.positions.find(p => parseInt(p.id) === id);
+        if (!pos) return;
+
+        const skillIds = data.position_skills
+            .filter(ps => parseInt(ps.position_id) === id)
+            .map(ps => parseInt(ps.skill_id));
+
+        const allSkills = data.skills;
+
+        const skillOptions = allSkills.map(skill => `
+            <option value="${skill.id}" ${skillIds.includes(parseInt(skill.id)) ? 'selected' : ''}>
+                ${skill.skill_name}
+            </option>
+        `).join('');
+
+        const row = document.getElementById(`position-row-${id}`);
+        row.innerHTML = `
+            <td><input type="text" id="edit-name-${id}" value="${pos.position_name}"></td>
+            <td><input type="text" id="edit-desc-${id}" value="${pos.description || ''}"></td>
+            <td><input type="number" id="edit-exp-${id}" value="${pos.Required_Experience || ''}"></td>
+            <td>
+    <div class="dropdown-checkbox" id="skill-dropdown-${pos.id}">
+        <button type="button" class="dropdown-toggle" onclick="toggleSkillDropdown(${pos.id})">
+            Select Skills
+        </button>
+        <div class="dropdown-menu" id="dropdown-menu-${pos.id}">
+            ${data.skills.map(skill => `
+                <label>
+                    <input type="checkbox" name="skill-checkbox-${pos.id}" value="${skill.id}" 
+                        ${skillIds.includes(parseInt(skill.id)) ? 'checked' : ''}>
+                    ${skill.skill_name}
+                </label><br>
+            `).join('')}
+        </div>
+    </div>
+</td>
+            <td>
+                <button class="edit-pos-btn" onclick="saveEditPosition(${id})">Save</button>
+                <button class="delete-pos-btn" onclick="navigate('positions')">Cancel</button>
+            </td>
+        `;
+    });
+}
+
+function toggleSkillDropdown(id) {
+    const menu = document.getElementById(`dropdown-menu-${id}`);
+    menu.classList.toggle('show');
+}
+
+// Close dropdown if clicked outside
+document.addEventListener('click', function (event) {
+    if (!event.target.closest('.dropdown-checkbox')) {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            menu.classList.remove('show');
+        });
+    }
+});
+
+
+function saveEditPosition(id) {
+    const name = document.getElementById(`edit-name-${id}`).value;
+    const desc = document.getElementById(`edit-desc-${id}`).value;
+    const exp = document.getElementById(`edit-exp-${id}`).value;
+
+    // Get all checked checkboxes
+    const skillCheckboxes = document.querySelectorAll(`input[name="skill-checkbox-${id}"]:checked`);
+    const selectedSkills = Array.from(skillCheckboxes).map(cb => cb.value).join(',');
+
+    fetch('manage_pos.php?action=update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `id=${id}&position_name=${encodeURIComponent(name)}&description=${encodeURIComponent(desc)}&Required_Experience=${encodeURIComponent(exp)}&skills=${encodeURIComponent(selectedSkills)}`
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert("Position updated successfully!");
+                clearCache();
+                navigate('positions');
+            } else {
+                alert("Error: " + (data.error || "Update failed"));
+            }
+        });
+}
+
+
+
 function deletePosition(id) {
     if (!confirm("Are you sure you want to delete this position?")) return;
 
@@ -174,17 +278,17 @@ function deletePosition(id) {
         },
         body: `id=${encodeURIComponent(id)}`
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            alert("Position deleted successfully!");
-            clearCache();
-            navigate('positions');
-        } else {
-            alert("Error deleting position: " + (data.error || "Unknown error"));
-        }
-    })
-    .catch(error => alert("Unexpected error: " + error.message));
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert("Position deleted successfully!");
+                clearCache();
+                navigate('positions');
+            } else {
+                alert("Error deleting position: " + (data.error || "Unknown error"));
+            }
+        })
+        .catch(error => alert("Unexpected error: " + error.message));
 }
 
 function editPosition(id) {
@@ -201,49 +305,69 @@ function editPosition(id) {
         const desc = prompt("Edit Description:", pos.description || '');
         const exp = prompt("Edit Required Experience (in years):", pos.Required_Experience || '');
 
-        fetch('manage_pos.php?action=update', {
+        // Get currently assigned skills
+        const assignedSkills = data.position_skills
+            .filter(ps => parseInt(ps.position_id) === id)
+            .map(ps => ps.skill_id.toString());
+
+        const skillOptions = data.skills.map(skill => {
+            const isSelected = assignedSkills.includes(skill.id.toString());
+            return `${isSelected ? '[x]' : '[ ]'} ${skill.id}: ${skill.skill_name}`;
+        }).join('\n');
+
+        const selected = prompt("Edit Skill IDs separated by commas:\n" + skillOptions, assignedSkills.join(','));
+        const selectedSkills = selected?.split(',').map(s => s.trim()).filter(Boolean).join(',');
+
+        fetch('manage_positions.php?action=update', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=${id}&position_name=${encodeURIComponent(name)}&description=${encodeURIComponent(desc)}&Required_Experience=${encodeURIComponent(exp)}`
+            body: `id=${id}&position_name=${encodeURIComponent(name)}&description=${encodeURIComponent(desc)}&Required_Experience=${encodeURIComponent(exp)}&skills=${encodeURIComponent(selectedSkills)}`
         })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert("Position updated successfully!");
-                clearCache();
-                navigate('positions');
-            } else {
-                alert("Error updating position: " + (data.error || "Unknown error"));
-            }
-        })
-        .catch(error => alert("Unexpected error: " + error.message));
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Position updated successfully!");
+                    clearCache();
+                    navigate('positions');
+                } else {
+                    alert("Error updating position: " + (data.error || "Unknown error"));
+                }
+            });
     });
 }
 
+
 function createPosition() {
-    const name = prompt("Enter Position Name:");
-    if (!name) return;
+    fetchData().then(data => {
+        const name = prompt("Enter Position Name:");
+        if (!name) return;
 
-    const desc = prompt("Enter Description:", '');
-    const exp = prompt("Enter Required Experience (in years):", '');
+        const desc = prompt("Enter Description:", '');
+        const exp = prompt("Enter Required Experience (in years):", '');
 
-    fetch('manage_pos.php?action=create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `position_name=${encodeURIComponent(name)}&description=${encodeURIComponent(desc)}&Required_Experience=${encodeURIComponent(exp)}`
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            alert("Position created successfully!");
-            clearCache();
-            navigate('positions');
-        } else {
-            alert("Error creating position: " + (data.error || "Unknown error"));
-        }
-    })
-    .catch(error => alert("Unexpected error: " + error.message));
+        // Skill selection
+        const skillOptions = data.skills.map(skill => `${skill.id}: ${skill.skill_name}`).join('\n');
+        const selected = prompt("Enter Skill IDs separated by commas:\n" + skillOptions, '');
+        const selectedSkills = selected?.split(',').map(s => s.trim()).filter(Boolean).join(',');
+
+        fetch('manage_positions.php?action=create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `position_name=${encodeURIComponent(name)}&description=${encodeURIComponent(desc)}&Required_Experience=${encodeURIComponent(exp)}&skills=${encodeURIComponent(selectedSkills)}`
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Position created with skills!");
+                    clearCache();
+                    navigate('positions');
+                } else {
+                    alert("Error creating position: " + (data.error || "Unknown error"));
+                }
+            });
+    });
 }
+
 
 
 let filteredCandidates = [];
