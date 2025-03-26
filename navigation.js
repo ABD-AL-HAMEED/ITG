@@ -139,10 +139,10 @@ function navigate(section, event = null) {
                                     <tr>
                                         <td>${pos.position_name}</td>
                                         <td>${pos.description || 'N/A'}</td>
-                                        <td>${pos.Required_Experience || 'N/A'}</td>
+                                        <td>${pos.Required_Experience ? pos.Required_Experience + ' Years' : 'N/A'}</td>
                                         <td>
-                                        <button onclick="editPosition(${pos.id})">Edit</button>
-                                        <button onclick="deletePosition(${pos.id})">Delete</button>
+                                        <button class="edit-pos-btn" onclick="editPosition(${pos.id})">Edit</button>
+                                        <button class="delete-pos-btn" onclick="deletePosition(${pos.id})">Delete</button>
                                         </td>
                                     </tr>
                                 `).join('') || '<tr><td colspan="3">No positions available</td></tr>'}

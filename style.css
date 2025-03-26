@@ -243,7 +243,7 @@ body {
     color: white;
 }
 
-/* Buttons for Edit & Delete */
+/* Buttons for Edit & Delete skills */
 .edit-skill-btn,
 .delete-skill-btn {
     padding: 8px 12px;
@@ -267,6 +267,32 @@ body {
 .delete-skill-btn:hover {
     opacity: 0.8;
 }
+
+/* Buttons for Edit & Delete positions */
+.edit-pos-btn,
+.delete-pos-btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.edit-pos-btn {
+    background-color: #ffc107;
+    color: black;
+}
+
+.delete-pos-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.edit-pos-btn:hover,
+.delete-pos-btn:hover {
+    opacity: 0.8;
+}
+
 
 /* "New Skill" Button */
 .new-skill-btn {
