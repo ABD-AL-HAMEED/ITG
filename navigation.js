@@ -124,11 +124,33 @@ function navigate(section, event = null) {
 
             case 'positions':
                 htmlContent = `
-                    <h2>Available Positions</h2>
-                    <ul>
-                        ${data.positions?.map(pos => `<li>${pos.position_name}</li>`).join('') || '<li>Data not available</li>'}
-                    </ul>`;
+                        <h2>Available Positions</h2>
+                        <table class="skills-table">
+                            <thead>
+                                <tr>
+                                    <th>Position Name</th>
+                                    <th>Description</th>
+                                    <th>Required Experience</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.positions?.map(pos => `
+                                    <tr>
+                                        <td>${pos.position_name}</td>
+                                        <td>${pos.description || 'N/A'}</td>
+                                        <td>${pos.Required_Experience || 'N/A'}</td>
+                                        <td>
+                                        <button onclick="editPosition(${pos.id})">Edit</button>
+                                        <button onclick="deletePosition(${pos.id})">Delete</button>
+                                        </td>
+                                    </tr>
+                                `).join('') || '<tr><td colspan="3">No positions available</td></tr>'}
+                            </tbody>
+                        </table>
+                    `;
                 break;
+
 
             default:
                 htmlContent = `<h2>Overview</h2><p>Manage candidates and applications from this panel.</p>`;
