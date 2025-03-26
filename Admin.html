@@ -12,7 +12,7 @@
 <body>
     <div class="sidebar">
         <div class="logo-container">
-            <img src="ITG_logo_2x.png" alt="Company Logo">
+            <img src="files/ITG_logo_2x.png" alt="Company Logo">
         </div>
         <h2 style="text-align:center;">Admin Panel</h2>
         <a href="#" onclick="navigate('dashboard')"><i class="fa fa-home"></i> Dashboard</a>
@@ -29,30 +29,48 @@
     </div>
 
     <!-- Load JavaScript -->
-    <script src="main.js"></script>
-
-    <script src="navigation.js"></script>
-<script src="table.js"></script>
+    <script src="table.js"></script>
     <script src="setup.js"></script>
-    <script src="skills.js"></script>
     <script src="candidates.js"></script>
     <script src="addSkill.js"></script>
-    
-
     <script>
-        // Fetch data from `data.php` when the page loads
         document.addEventListener("DOMContentLoaded", function () {
             fetch("data.php")
                 .then(response => response.json())
                 .then(data => {
+                    // Expose all tables to global scope if needed
                     window.positions = data.positions;
-                    window.positionSkills = data.positionSkills;
+                    window.positionSkills = data.position_skills;
+                    window.skills = data.skills;
+                    window.candidates = data.candidates;
+                    window.candidateSkills = data.candidate_skills;
+                    window.candidateDetailedInfo = data.candidate_detailed_info;
+                    window.education = data.education;
+                    window.employees = data.employees;
+                    window.users = data.users;
+    
+                    // Log everything for debugging
                     console.log("Loaded Positions:", positions);
                     console.log("Loaded Position Skills:", positionSkills);
+                    console.log("Loaded Skills:", skills);
+                    console.log("Loaded Candidates:", candidates);
+                    console.log("Loaded Candidate Skills:", candidateSkills);
+                    console.log("Loaded Candidate Detailed Info:", candidateDetailedInfo);
+                    console.log("Loaded Education:", education);
+                    console.log("Loaded Employees:", employees);
+                    console.log("Loaded Users:", users);
+    
+                    // Proceed with initialization
+                    setupNavigation();
+                    navigate('dashboard'); 
                 })
                 .catch(error => console.error("Error loading data:", error));
         });
     </script>
+    
+<script src="main.js" defer></script>
+<script src="navigation.js" defer></script>
+<script src="skills.js" defer></script>
 
 </body>
 
