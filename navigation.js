@@ -35,6 +35,13 @@ function navigate(section, event = null) {
         switch (section) {
             case 'dashboard':
                 htmlContent = `
+                
+                    <button onclick="loadCVReport()" class="report-btn">Generate Report</button>
+            
+                    <!-- report place -->
+                    <div id="cv-report">
+                    </div>      
+
                     <h2>Manage candidates and applications easily from this panel.</h2>
                     <table class="dashboard-table">
                         <thead>
@@ -183,7 +190,7 @@ function handlePositionChange() {
                                 ${hasFavorite ? `<td>${candidate.is_favorite === "1" ? 'Yes 🌟' : ''}</td>` : ''}
                                 <td><a href="${candidate.resume_path}" target="_blank">View CV</a></td>
                                 <td>
-    <button onclick="toggleFavorite(${candidate.id}, ${candidate.is_favorite === "1" ? 'false' : 'true'})">
+    <button class="fav-btn" onclick="toggleFavorite(${candidate.id}, ${candidate.is_favorite === "1" ? 'false' : 'true'})">
         ${candidate.is_favorite === "1" ? 'Unmark Favorite' : 'Mark Favorite'}
     </button>
 </td>
@@ -205,19 +212,19 @@ function toggleFavorite(candidateId, makeFavorite) {
         },
         body: `candidateId=${encodeURIComponent(candidateId)}&is_favorite=${makeFavorite ? 1 : 0}`
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(`Candidate has been ${makeFavorite ? 'marked' : 'unmarked'} as favorite.`);
-            clearCache();
-            handlePositionChange(); // Re-render updated table
-        } else {
-            alert("Error: " + (data.error || "Failed to update favorite status."));
-        }
-    })
-    .catch(error => {
-        alert("An unexpected error occurred: " + error.message);
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Candidate has been ${makeFavorite ? 'marked' : 'unmarked'} as favorite.`);
+                clearCache();
+                handlePositionChange(); // Re-render updated table
+            } else {
+                alert("Error: " + (data.error || "Failed to update favorite status."));
+            }
+        })
+        .catch(error => {
+            alert("An unexpected error occurred: " + error.message);
+        });
 }
 
 
@@ -423,5 +430,64 @@ function openNewSkillPrompt() {
             } else {
                 alert('Error: ' + data.error);
             }
+        });
+}
+
+function loadCVReport() {
+    let reportContainer = document.getElementById('cv-report');
+    //Check if the report is already displayed
+    if (reportContainer.style.display === 'block') {
+        reportContainer.style.display = 'none'; //Hide report if visible
+        return;
+    }
+
+    // Fetch data from`navegation_report.php`
+    fetch('generate_report.php')
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                throw new Error(data.error || "Failed to generate report.");
+            }
+
+            let report = data.report;
+
+            let reportHTML = `
+               <h3>Report Summary</h3>
+                    <table class="dashboard-table">
+                        <thead>
+                           <tr>
+                                 <th>Total CVs</th>
+                                 <th>Favorite Candidates</th>
+                                 <th>Stand By Candidates</th>
+                                 <th>Total Positions</th>
+                                 <th>Total Employees</th>
+                                 <th>Total Users</th>
+                                 <th>Total Skills</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                               
+                                <td>${data.report.total_cvs}</td>
+                                <td>${data.report.favorite}</td>
+                                <td>${data.report.standby}</td>
+                                <td>${data.report.total_positions}</td>
+                                <td>${data.report.total_employees}</td>
+                                <td>${data.report.total_users}</td>
+                                <td>${data.report.total_skills}</td>
+                               
+                            </tr>
+                           
+                        </tbody>
+                    </table>
+            `;
+
+            //Update report content
+            reportContainer.innerHTML = reportHTML;
+            reportContainer.style.display = 'block'; // Show report
+        })
+        .catch(error => {
+            reportContainer.innerHTML = `<p>An error occurred: ${error.message}</p>`;
+            reportContainer.style.display = 'block'; // Show error message also
         });
 }

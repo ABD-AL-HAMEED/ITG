@@ -278,3 +278,37 @@ body {
 .new-skill-btn:hover {
     background-color: #367c96;
 }
+
+.report-btn {
+    padding: 15px 17px;
+    font-size: 16px;
+    color: white;
+    background-color: #367c96;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.report-btn:hover {
+    background-color: #3289a8;
+    transform: scale(1.1);
+}
+
+.fav-btn {
+    padding: 11px 13px;
+    font-size: 12px;
+    color: white;
+    background-color: #367c96;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 10px;
+}
+
+.fav-btn:hover {
+    background-color: #3289a8;
+    transform: scale(1.1);
+}
