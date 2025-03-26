@@ -63,27 +63,27 @@ function navigate(section, event = null) {
 
             case 'candidates':
                 htmlContent = `
-                    <h2>Candidates</h2>
-                    <label for="position">Select Position:</label>
-                    <select id="position" name="position" onchange="handlePositionChange()">
-                        <option value="">Choose Position</option>
-                        ${data.positions?.map(pos => `<option value="${pos.id}">${pos.position_name}</option>`).join('') || '<option disabled>Data not available</option>'}
-                    </select>
-                    <div class="skills-container">
-                        <div class="skills-column">
-                            <h3>Soft Skills</h3>
-                            <ul id="soft-skills-list"><li>No skills loaded</li></ul>
+                        <h2>Candidates</h2>
+                        <label for="position">Select Position:</label>
+                        <select id="position" name="position" onchange="handlePositionChange()">
+                            <option value="">Choose Position</option>
+                            ${data.positions?.map(pos => `<option value="${pos.id}">${pos.position_name}</option>`).join('') || '<option disabled>Data not available</option>'}
+                        </select>
+                        <div class="skills-container">
+                            <div class="skills-column">
+                                <h3>Soft Skills</h3>
+                                <ul id="soft-skills-list"><li>No skills loaded</li></ul>
+                            </div>
+                            <div class="skills-column">
+                                <h3>Technical Skills</h3>
+                                <ul id="tech-skills-list"><li>No skills loaded</li></ul>
+                            </div>
                         </div>
-                        <div class="skills-column">
-                            <h3>Technical Skills</h3>
-                            <ul id="tech-skills-list"><li>No skills loaded</li></ul>
+                        <h3>Matching Candidates:</h3>
+                        <div id="candidates-table-container">
+                            <p>No candidates to display</p>
                         </div>
-                    </div>
-                    <h3>Matching Candidates:</h3>
-<input type="text" id="candidate-search" placeholder="Search candidates..." oninput="filterCandidates()" />
-<ul id="candidates-list"><li>No candidates to display</li></ul>
-
-                `;
+                    `;
                 break;
 
             case 'skills':
@@ -134,16 +134,16 @@ function navigate(section, event = null) {
     });
 }
 
-let filteredCandidates = []; // Global for search use
+let filteredCandidates = [];
 
 function handlePositionChange() {
     SkillsList();
 
     const selectedPositionId = parseInt(document.getElementById('position').value);
-    const candidatesList = document.getElementById('candidates-list');
+    const container = document.getElementById('candidates-table-container');
 
     if (isNaN(selectedPositionId)) {
-        candidatesList.innerHTML = '<li>No candidates to display</li>';
+        container.innerHTML = '<p>No candidates to display</p>';
         return;
     }
 
@@ -152,9 +152,75 @@ function handlePositionChange() {
             parseInt(candidate.applied_position_id) === selectedPositionId
         );
 
-        renderCandidateList(filteredCandidates);
+        // Check if any candidate is a favorite
+        const hasFavorite = filteredCandidates.some(c => c.is_favorite === "1");
+
+        container.innerHTML = filteredCandidates.length
+            ? `
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Application Date</th>
+                            ${hasFavorite ? '<th>Favorite</th>' : ''}
+                            <th>CV</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredCandidates.map(candidate => `
+                            <tr>
+                                <td>${candidate.id}</td>
+                                <td>${candidate.first_name.trim()}</td>
+                                <td>${candidate.last_name.trim()}</td>
+                                <td>${candidate.email.trim()}</td>
+                                <td>${candidate.phone || 'N/A'}</td>
+                                <td>${candidate.application_date}</td>
+                                ${hasFavorite ? `<td>${candidate.is_favorite === "1" ? 'Yes 🌟' : ''}</td>` : ''}
+                                <td><a href="${candidate.resume_path}" target="_blank">View CV</a></td>
+                                <td>
+    <button onclick="toggleFavorite(${candidate.id}, ${candidate.is_favorite === "1" ? 'false' : 'true'})">
+        ${candidate.is_favorite === "1" ? 'Unmark Favorite' : 'Mark Favorite'}
+    </button>
+</td>
+
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `
+            : '<p>No candidates found for this position</p>';
     });
 }
+
+function toggleFavorite(candidateId, makeFavorite) {
+    fetch("mark_favorite.php", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `candidateId=${encodeURIComponent(candidateId)}&is_favorite=${makeFavorite ? 1 : 0}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`Candidate has been ${makeFavorite ? 'marked' : 'unmarked'} as favorite.`);
+            clearCache();
+            handlePositionChange(); // Re-render updated table
+        } else {
+            alert("Error: " + (data.error || "Failed to update favorite status."));
+        }
+    })
+    .catch(error => {
+        alert("An unexpected error occurred: " + error.message);
+    });
+}
+
+
 
 function renderCandidateList(list) {
     const candidatesList = document.getElementById('candidates-list');
