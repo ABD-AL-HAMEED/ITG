@@ -125,6 +125,7 @@ function navigate(section, event = null) {
             case 'positions':
                 htmlContent = `
                         <h2>Available Positions</h2>
+                        <button class="new-pos-btn" onclick="createPosition()">New Position</button>
                         <table class="skills-table">
                             <thead>
                                 <tr>
@@ -162,6 +163,88 @@ function navigate(section, event = null) {
         content.innerHTML = `<p>Error: ${error.message}</p>`;
     });
 }
+
+function deletePosition(id) {
+    if (!confirm("Are you sure you want to delete this position?")) return;
+
+    fetch('manage_pos.php?action=delete', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `id=${encodeURIComponent(id)}`
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("Position deleted successfully!");
+            clearCache();
+            navigate('positions');
+        } else {
+            alert("Error deleting position: " + (data.error || "Unknown error"));
+        }
+    })
+    .catch(error => alert("Unexpected error: " + error.message));
+}
+
+function editPosition(id) {
+    fetchData().then(data => {
+        const pos = data.positions.find(p => parseInt(p.id) === id);
+        if (!pos) {
+            alert("Position not found.");
+            return;
+        }
+
+        const name = prompt("Edit Position Name:", pos.position_name);
+        if (!name) return;
+
+        const desc = prompt("Edit Description:", pos.description || '');
+        const exp = prompt("Edit Required Experience (in years):", pos.Required_Experience || '');
+
+        fetch('manage_pos.php?action=update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id=${id}&position_name=${encodeURIComponent(name)}&description=${encodeURIComponent(desc)}&Required_Experience=${encodeURIComponent(exp)}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert("Position updated successfully!");
+                clearCache();
+                navigate('positions');
+            } else {
+                alert("Error updating position: " + (data.error || "Unknown error"));
+            }
+        })
+        .catch(error => alert("Unexpected error: " + error.message));
+    });
+}
+
+function createPosition() {
+    const name = prompt("Enter Position Name:");
+    if (!name) return;
+
+    const desc = prompt("Enter Description:", '');
+    const exp = prompt("Enter Required Experience (in years):", '');
+
+    fetch('manage_pos.php?action=create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `position_name=${encodeURIComponent(name)}&description=${encodeURIComponent(desc)}&Required_Experience=${encodeURIComponent(exp)}`
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("Position created successfully!");
+            clearCache();
+            navigate('positions');
+        } else {
+            alert("Error creating position: " + (data.error || "Unknown error"));
+        }
+    })
+    .catch(error => alert("Unexpected error: " + error.message));
+}
+
 
 let filteredCandidates = [];
 
