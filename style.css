@@ -491,3 +491,52 @@ body {
   .dropdown-menu.show {
     display: block;
   }
+
+  /* Styling the select element */
+#position {
+    font-size: 16px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    color: #333;
+    width: 200px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Adding hover effect for the select box */
+#position:hover {
+    border-color: #007BFF;
+    background-color: #e6f2ff;
+}
+
+/* Styling the options */
+#position option {
+    padding: 10px;
+    background-color: #fff;
+    color: #333;
+}
+
+/* Styling when the select box is in focus */
+#position:focus {
+    border-color: #007BFF;
+    background-color: #e6f2ff;
+}
+
+/* Styling the default option */
+#position option[value=""] {
+    color: #aaa;
+}
+
+/* For the 'Data not available' option */
+#position option:disabled {
+    color: #ccc;
+    font-style: italic;
+}
+
+/* Optional: Adding a subtle drop shadow effect */
+#position {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+

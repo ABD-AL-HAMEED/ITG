@@ -79,7 +79,7 @@ function navigate(section, event = null) {
                             <option value="">Choose Position</option>
                             ${data.positions?.map(pos => `<option value="${pos.id}">${pos.position_name}</option>`).join('') || '<option disabled>Data not available</option>'}
                         </select>
-                        <div class="skills-container">
+                        <div class="skills-container" id="skills-container" style="display: none;">
                             <div class="skills-column">
                                 <h3>Soft Skills</h3>
                                 <ul id="soft-skills-list"><li>No skills loaded</li></ul>
@@ -413,10 +413,15 @@ function handlePositionChange() {
 
     const selectedPositionId = parseInt(document.getElementById('position').value);
     const container = document.getElementById('candidates-table-container');
+    const skillsContainer = document.getElementById('skills-container'); // 👈 Get the skills container
 
+    // Show or hide the skills container
     if (isNaN(selectedPositionId)) {
+        skillsContainer.style.display = 'none'; // 👈 Hide if no position selected
         container.innerHTML = '<p>No candidates to display</p>';
         return;
+    } else {
+        skillsContainer.style.display = 'grid'; // 👈 Show when position is selected (use 'block' or 'flex' if needed)
     }
 
     fetchData().then(data => {
@@ -424,7 +429,6 @@ function handlePositionChange() {
             parseInt(candidate.applied_position_id) === selectedPositionId
         );
 
-        // Check if any candidate is a favorite
         const hasFavorite = filteredCandidates.some(c => c.is_favorite === "1");
 
         container.innerHTML = filteredCandidates.length
@@ -455,11 +459,10 @@ function handlePositionChange() {
                                 ${hasFavorite ? `<td>${candidate.is_favorite === "1" ? 'Yes 🌟' : ''}</td>` : ''}
                                 <td><a href="${candidate.resume_path}" target="_blank">View CV</a></td>
                                 <td>
-    <button class="fav-btn" onclick="toggleFavorite(${candidate.id}, ${candidate.is_favorite === "1" ? 'false' : 'true'})">
-        ${candidate.is_favorite === "1" ? 'Unmark Favorite' : 'Mark Favorite'}
-    </button>
-</td>
-
+                                    <button class="fav-btn" onclick="toggleFavorite(${candidate.id}, ${candidate.is_favorite === "1" ? 'false' : 'true'})">
+                                        ${candidate.is_favorite === "1" ? 'Unmark Favorite' : 'Mark Favorite'}
+                                    </button>
+                                </td>
                             </tr>
                         `).join('')}
                     </tbody>
@@ -468,6 +471,7 @@ function handlePositionChange() {
             : '<p>No candidates found for this position</p>';
     });
 }
+
 
 function toggleFavorite(candidateId, makeFavorite) {
     fetch("mark_favorite.php", {
