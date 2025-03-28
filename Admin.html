@@ -15,10 +15,11 @@
             <img src="files/ITG_logo_2xn.png" alt="Company Logo">
         </div>
         <h2 style="text-align:center;">Admin Panel</h2>
-        <a href="#" onclick="navigate('dashboard')"><i class="fa fa-home"></i> Dashboard</a>
-        <a href="#" onclick="navigate('candidates')"><i class="fa fa-users"></i> Candidates</a>
-        <a href="#" onclick="navigate('skills')"><i class="fa fa-tools"></i> Skills</a>
-        <a href="#" onclick="navigate('positions')"><i class="fa fa-briefcase"></i> Positions</a>
+        <a href="#" class="nav-link" data-section="dashboard"><i class="fa fa-home"></i> Dashboard</a>
+        <a href="#" class="nav-link" data-section="candidates"><i class="fa fa-users"></i> Candidates</a>
+        <a href="#" class="nav-link" data-section="skills"><i class="fa fa-tools"></i> Skills</a>
+        <a href="#" class="nav-link" data-section="positions"><i class="fa fa-briefcase"></i> Positions</a>
+
     </div>
     <div class="content">
         <h1>Admin Dashboard</h1>
@@ -48,29 +49,17 @@
                     window.education = data.education;
                     window.employees = data.employees;
                     window.users = data.users;
-    
-                    // Log everything for debugging
-                    console.log("Loaded Positions:", positions);
-                    console.log("Loaded Position Skills:", positionSkills);
-                    console.log("Loaded Skills:", skills);
-                    console.log("Loaded Candidates:", candidates);
-                    console.log("Loaded Candidate Skills:", candidateSkills);
-                    console.log("Loaded Candidate Detailed Info:", candidateDetailedInfo);
-                    console.log("Loaded Education:", education);
-                    console.log("Loaded Employees:", employees);
-                    console.log("Loaded Users:", users);
-    
+
                     // Proceed with initialization
                     setupNavigation();
-                    navigate('dashboard'); 
+                    navigate('dashboard');
                 })
                 .catch(error => console.error("Error loading data:", error));
         });
     </script>
-    
-<script src="main.js" defer></script>
-<script src="navigation.js" defer></script>
-<script src="skills.js" defer></script>
+
+    <script src="navigation.js" defer></script>
+    <script src="skills.js" defer></script>
 
 </body>
 
