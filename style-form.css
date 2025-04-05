@@ -1,131 +1,186 @@
-html, body {
-    height: 100%;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column; /* Stack elements properly */
+:root {
+    --itg-blue: #0056b3;
+    --itg-dark-blue: #003d7a;
+    --itg-light: #f8f9fa;
+    --itg-gray: #6c757d;
+    --itg-light-gray: #e9ecef;
+    --itg-border: #dee2e6;
 }
 
-.form-container {
-    width: 1050px;
-    max-width: 1400px;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    background-color: #f5fdff;
-    
-    /* Keeps space consistent */
-    margin-top: 50px; 
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    gap: 15px; /* Ensures consistent spacing */
+body {
+    font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
 }
 
-/* LOGO */
-.form-logo {
-    max-width: 150px;
-    height: auto;
+.hero-container {
+    position: relative;
+    margin-bottom: 40px;
+}
+
+.hero-image {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    object-position: center;
+}
+
+.hero-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 86, 179, 0.8);
+    color: white;
+    padding: 30px;
+}
+
+.hero-overlay h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
     margin-bottom: 10px;
 }
 
-/* Form Header Styles */
+.application-card {
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    padding: 30px;
+    margin-top: -60px;
+    margin-bottom: 50px;
+    position: relative;
+    z-index: 1;
+}
+
 .form-header {
-    font-size: 28px;
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--itg-border);
+}
+
+.form-header h2 {
+    color: var(--itg-blue);
+    font-weight: 700;
+    font-size: 1.8rem;
     margin-bottom: 10px;
-    text-align: center;
-    color: #367c96;
 }
 
-.form-subHeader {
-    font-size: 16px;
-    margin-bottom: 20px;
-    text-align: center;
-    color: #1a728f;
-}
-
-/* Input Fields */
-.form-line {
-    margin-bottom: 15px;
+.form-header p {
+    color: var(--itg-gray);
+    font-size: 1rem;
 }
 
 .form-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+    font-weight: 600;
+    color: var(--itg-dark-blue);
+    margin-bottom: 8px;
+    font-size: 0.95rem;
 }
 
-.form-textbox, .form-textarea, .form-dropdown {
-    width: 98%;
-    padding: 10px;
-    border: 1px solid #ccc;
+.form-control, .form-select {
+    height: 45px;
+    border: 1px solid var(--itg-border);
     border-radius: 4px;
-    font-size: 14px;
-    transition: border-color 0.3s;
-}
-
-.form-textbox:focus, .form-textarea:focus, .form-dropdown:focus {
-    border-color: #367c96;
-    outline: none;
-}
-
-/* Submit Button */
-.form-submit-button {
-    background-color: #367c96;
-    color: white;
     padding: 10px 15px;
+    font-size: 0.95rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--itg-blue);
+    box-shadow: 0 0 0 0.2rem rgba(0, 86, 179, 0.25);
+}
+
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.file-upload-area {
+    border: 2px dashed var(--itg-border);
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+    background: var(--itg-light);
+    margin-bottom: 15px;
+    transition: all 0.3s;
+}
+
+.file-upload-area:hover {
+    border-color: var(--itg-blue);
+}
+
+.file-upload-icon {
+    color: var(--itg-blue);
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.file-upload-text {
+    font-size: 0.9rem;
+    color: var(--itg-gray);
+}
+
+.position-details {
+    background-color: #f0f8ff;
+    border-left: 4px solid var(--itg-blue);
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.btn-apply {
+    background-color: var(--itg-blue);
+    color: white;
     border: none;
+    padding: 12px 30px;
+    font-size: 1rem;
+    font-weight: 600;
     border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    width: 100%;
-    transition: background-color 0.3s;
-    align-self: stretch; /* Ensures it takes full width inside the form */
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.form-submit-button:hover {
-    background-color: #2c5e7a;
+.btn-apply:hover {
+    background-color: var(--itg-dark-blue);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Required Field Indicator */
-.form-required {
-    color: red;
+.required-field::after {
+    content: '*';
+    color: #dc3545;
+    margin-left: 3px;
 }
 
-/* Small Labels */
-.form-sub-label {
-    font-size: 12px;
-    color: #1a728f;
-    margin-top: 5px;
+@media (max-width: 768px) {
+    .hero-overlay {
+        padding: 20px;
+    }
+    
+    .hero-overlay h1 {
+        font-size: 1.8rem;
+    }
+    
+    .application-card {
+        margin-top: -30px;
+        padding: 20px;
+    }
 }
 
-/* Ensure Last Form Line Doesn't Have Extra Spacing */
-.form-line:last-child {
-    margin-bottom: 0;
-}
-
-/* Position Description Box (Reserves Space but Expands Properly) */
-/* Position Description Box (Reserves Space but Expands Properly) */
-#expectedSection {
-    width: 98%;
-    padding: 12px;
-    margin-top: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #eef7fa;
-    font-size: 14px;
-    font-weight: bold;
-    max-height: 0;  /* Start with max-height of 0 */
-    opacity: 0;
-    visibility: hidden;
-    overflow: hidden; /* Prevents overflow when collapsed */
-    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, visibility 0.3s;
-}
-
-/* When Active, It Expands Instead of Pushing Up */
-#expectedSection.active {
-    visibility: visible;
-    opacity: 1;
-    max-height: 200px;  /* Set a max-height that is sufficient for content */
+@media (max-width: 576px) {
+    .hero-overlay {
+        padding: 15px;
+    }
+    
+    .hero-overlay h1 {
+        font-size: 1.5rem;
+    }
+    
+    .form-header h2 {
+        font-size: 1.5rem;
+    }
 }

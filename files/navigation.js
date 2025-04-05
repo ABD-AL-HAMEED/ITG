@@ -42,7 +42,7 @@ function navigate(section, event = null) {
                     <div id="cv-report">
                     </div>      
 
-                    <h2>Favorites candidates</h2>
+                    <h2>Favorit candidates</h2>
                     <table class="dashboard-table">
                         <thead>
                             <tr>
@@ -406,10 +406,100 @@ document.addEventListener('click', function (event) {
 
 //////////////////////////////////////////////////////////////////////Candidates///////////////////////////////////////////
 
+/*async function displayMatchingCandidates() {
+    const selectedPositionId = parseInt(document.getElementById('position').value);
+    const candidatesContainer = document.getElementById('candidates-table-container');
+
+    // Clear container first
+    candidatesContainer.innerHTML = '<p>Loading candidates...</p>';
+
+    if (isNaN(selectedPositionId)) {
+        candidatesContainer.innerHTML = '<p>Please select a valid position.</p>';
+        return;
+    }
+
+    try {
+        // Fetch data from your database
+        const data = await fetchData(); // This should return skills and position_skills
+        const { skills, position_skills } = data;
+
+        // Fetch candidates report
+        const response = await fetch('report.json');
+        const reportData = await response.json();
+
+        // Get required skill names for this position
+        const relatedSkillIds = position_skills
+            .filter(ps => ps.position_id === selectedPositionId)
+            .map(ps => ps.skill_id);
+
+        const requiredSkills = skills
+            .filter(skill => relatedSkillIds.includes(parseInt(skill.id)))
+            .map(skill => skill.skill_name.toLowerCase());
+
+        // If no required skills found
+        if (requiredSkills.length === 0) {
+            candidatesContainer.innerHTML = '<p>No required skills found for this position.</p>';
+            return;
+        }
+
+        // Filter candidates based on skill matching
+        const matchingCandidates = reportData.filter(candidate => {
+            const candidateSkills = [
+                ...(candidate.matched_technical_skills || []),
+                ...(candidate.matched_soft_skills || [])
+            ].map(skill => skill.toLowerCase());
+
+            // Check if any required skill is in candidate's matched skills
+            return requiredSkills.some(reqSkill => candidateSkills.includes(reqSkill));
+        });
+
+        // Display matching candidates
+        if (matchingCandidates.length > 0) {
+            let tableHtml = `
+                <table border="1" cellpadding="8" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Candidate File</th>
+                            <th>Score (%)</th>
+                            <th>Matched Technical Skills</th>
+                            <th>Matched Soft Skills</th>
+                            <th>Missing Technical Skills</th>
+                            <th>Missing Soft Skills</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            matchingCandidates.forEach(candidate => {
+                tableHtml += `
+                    <tr>
+                        <td>${candidate.filename}</td>
+                        <td>${candidate.score}%</td>
+                        <td>${(candidate.matched_technical_skills || []).join(', ') || 'None'}</td>
+                        <td>${(candidate.matched_soft_skills || []).join(', ') || 'None'}</td>
+                        <td>${(candidate.missing_technical_skills || []).join(', ') || 'None'}</td>
+                        <td>${(candidate.missing_soft_skills || []).join(', ') || 'None'}</td>
+                    </tr>
+                `;
+            });
+
+            tableHtml += '</tbody></table>';
+            candidatesContainer.innerHTML = tableHtml;
+        } else {
+            candidatesContainer.innerHTML = '<p>No candidates match the required skills for this position.</p>';
+        }
+
+    } catch (error) {
+        console.error('Error loading candidates:', error);
+        candidatesContainer.innerHTML = '<p>Error loading candidates.</p>';
+    }
+}*/
+
 let filteredCandidates = [];
 
 function handlePositionChange() {
     SkillsList();
+    //displayMatchingCandidates();
 
     const selectedPositionId = parseInt(document.getElementById('position').value);
     const container = document.getElementById('candidates-table-container');
@@ -424,13 +514,31 @@ function handlePositionChange() {
         skillsContainer.style.display = 'grid'; // 👈 Show when position is selected (use 'block' or 'flex' if needed)
     }
 
+    /*async function fetchData() {
+        try {
+            const response = await fetch('report.json'); // replace with the correct path to your uploaded file
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching candidate data:', error);
+            return { candidates: [] };
+        }
+    }*/
+
     fetchData().then(data => {
-        filteredCandidates = data.candidates.filter(candidate =>
-            parseInt(candidate.applied_position_id) === selectedPositionId
-        );
-
+        const selectedSkills = Array.from(document.querySelectorAll('input[name="skills[]"]:checked')).map(input => input.value.trim().toLowerCase());
+    
+        filteredCandidates = data.candidates.filter(candidate => {
+            const positionMatch = parseInt(candidate.applied_position_id) === selectedPositionId;
+    
+            const candidateSkills = candidate.skills ? candidate.skills.toLowerCase().split(',').map(skill => skill.trim()) : [];
+            const skillsMatch = selectedSkills.every(skill => candidateSkills.includes(skill));
+    
+            return positionMatch && (selectedSkills.length === 0 || skillsMatch);
+        });
+    
         const hasFavorite = filteredCandidates.some(c => c.is_favorite === "1");
-
+    
         container.innerHTML = filteredCandidates.length
             ? `
                 <table class="dashboard-table">
@@ -468,8 +576,9 @@ function handlePositionChange() {
                     </tbody>
                 </table>
             `
-            : '<p>No candidates found for this position</p>';
+            : '<p>No candidates found for this position and skills selection</p>';
     });
+    
 }
 
 
@@ -587,6 +696,9 @@ function loadCVReport() {
             reportContainer.style.display = 'block'; // Show error message also
         });
 }
+
+
+
 
 //////////////////////////////////////////skills////////////////////////////////////////////////////
 
