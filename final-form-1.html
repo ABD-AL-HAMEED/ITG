@@ -1,4 +1,6 @@
-<html lang="en"><head>
+<html lang="en">
+
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITG Solutions - Job Application</title>
@@ -10,7 +12,8 @@
 
 <body>
     <div class="hero-container">
-        <img src="https://www.itgsolutions.com/wp-content/uploads/2019/01/careers_header.jpg" class="hero-image" alt="Careers Header">
+        <img src="https://www.itgsolutions.com/wp-content/uploads/2019/01/careers_header.jpg" class="hero-image"
+            alt="Careers Header">
         <div class="hero-overlay">
             <h1>Join Our Team</h1>
             <p>Start your journey with ITG Solutions today</p>
@@ -26,47 +29,13 @@
                         <p>Please fill out the form below to submit your job application</p>
                     </div>
 
-                    <form class="row g-4">
-
-
-                        <div class="col-md-6">
-                            <label for="first_name" class="form-label required-field">First Name</label>
-                            <input type="text" class="form-control" id="first_name" placeholder="Enter your first name" required="">
-                        </div>
-
-
-
-                        <div class="col-md-6">
-                            <label for="last_name" class="form-label required-field">Last Name</label>
-                            <input type="text" class="form-control" id="last_name" placeholder="Enter your last name" required="">
-                        </div>
-
-
-
-                        <div class="col-md-6">
-                            <label for="email" class="form-label required-field">Email</label>
-                            <input type="email" class="form-control" id="email" placeholder="Enter your email" required="">
-                        </div>
-
-
-
-                        <div class="col-md-6">
-                            <label for="phone" class="form-label required-field">Phone Number</label>
-                            <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number" required="">
-                        </div>
-
-
+                    <form id="applicationForm" class="row g-4" enctype="multipart/form-data">
 
 
                         <div class="col-md-12">
                             <label for="position" class="form-label required-field">Applied Position</label>
                             <select class="form-select" id="position" name="position" required="">
                                 <option value="">Select Position</option>
-                                <option value="AI Developer">AI Developer</option>
-                                <option value="Cybersecurity">Cybersecurity</option>
-                                <option value="Human Resources">Human Resources</option>
-                                <option value="Graphic Designer">Graphic Designer</option>
-                                <option value="Business Analyst">Business Analyst</option>
                             </select>
                         </div>
 
@@ -76,6 +45,39 @@
                             <strong>What is expected of you as a <span id="selectedPosition"></span>:</strong>
                             <p id="positionDescription">Please select a position to view details.</p>
                         </div>
+
+
+
+                        <div class="col-md-6">
+                            <label for="first_name" class="form-label required-field">First Name</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Enter your first name"
+                                required="">
+                        </div>
+
+
+
+                        <div class="col-md-6">
+                            <label for="last_name" class="form-label required-field">Last Name</label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Enter your last name"
+                                required="">
+                        </div>
+
+
+
+                        <div class="col-md-6">
+                            <label for="email" class="form-label required-field">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email"
+                                required="">
+                        </div>
+
+
+
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label required-field">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" placeholder="Enter your phone number"
+                                required="">
+                        </div>
+
 
 
 
@@ -90,7 +92,8 @@
                         <div class="col-md-6">
                             <label class="form-label required-field">Upload Resume</label>
                             <div class="file-upload-area">
-                                <input type="file" id="resume" name="resume" class="form-control file-upload-input" required="">
+                                <input type="file" id="resume" name="resume" class="form-control file-upload-input"
+                                    required="">
                                 <label for="resume" class="file-upload-label">
                                     <div class="file-upload-icon">
                                         <i class="fas fa-file-upload"></i>
@@ -102,11 +105,12 @@
                         </div>
 
 
-                        
+
                         <div class="col-md-6">
                             <label class="form-label">Other Documents</label>
                             <div class="file-upload-area">
-                                <input type="file" id="other_documents" name="other_documents" class="form-control file-upload-input">
+                                <input type="file" id="other_documents" name="other_documents"
+                                    class="form-control file-upload-input">
                                 <label for="other_documents" class="file-upload-label">
                                     <div class="file-upload-icon">
                                         <i class="fas fa-file-alt"></i>
@@ -117,7 +121,7 @@
                         </div>
 
                         <div class="col-12 text-center mt-4">
-                            <button type="submit" class="btn btn-apply">
+                            <button type="button" class="btn btn-apply" id="submitApplication">
                                 Submit Application
                             </button>
                         </div>
@@ -127,38 +131,83 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> -->
+
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const positionDropdown = document.getElementById("position");
-            const positionDetails = document.getElementById("positionDetails");
-            const positionDescription = document.getElementById("positionDescription");
-            const selectedPosition = document.getElementById("selectedPosition");
-        
-            // Position descriptions
-            const positionDescriptions = {
-                "AI Developer": "As an AI Developer at ITG Solutions, you'll design and implement artificial intelligence solutions, develop machine learning models, and work with large datasets. Requirements include proficiency in Python, TensorFlow/PyTorch, and experience with NLP or computer vision.",
-                "Cybersecurity": "Our Cybersecurity specialists protect systems and networks from digital attacks. You'll monitor for security breaches, implement protective measures, and respond to incidents. Certifications like CISSP or CEH are preferred.",
-                "Human Resources": "HR professionals at ITG Solutions manage recruitment, employee relations, and organizational development. You'll need strong interpersonal skills, knowledge of labor laws, and experience with HR software.",
-                "Graphic Designer": "Graphic Designers create visual concepts to communicate ideas. You'll design marketing materials, digital content, and product interfaces. Proficiency in Adobe Creative Suite and a strong portfolio are required.",
-                "Business Analyst": "Business Analysts bridge IT and business by analyzing processes and requirements. You'll document specifications, identify improvements, and help implement solutions. Strong analytical and communication skills are essential."
-            };
-        
-            // Handle position selection change
-            positionDropdown.addEventListener("change", function () {
-                let selectedValue = this.value;
-                let selectedText = this.options[this.selectedIndex].text;
-        
-                if (selectedValue) {
-                    selectedPosition.textContent = selectedText;
-                    positionDescription.textContent = positionDescriptions[selectedValue] || "No description available.";
-                    positionDetails.style.display = "block";
-                } else {
-                    positionDetails.style.display = "none";
-                }
+        // Function to fetch positions and populate the dropdown
+        function fetchPositions() {
+            fetch('data.php')
+                .then(response => response.json())
+                .then(data => {
+                    const positionSelect = document.getElementById('position');
+                    data.positions.forEach(position => {
+                        const option = document.createElement('option');
+                        option.value = position.id;
+                        option.textContent = position.position_name;
+                        option.dataset.description = position.description; // store description
+                        positionSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching positions:', error));
+        }
+
+        // Function to update position description when user selects
+        function updatePositionDetails() {
+            const positionSelect = document.getElementById('position');
+            const selectedOption = positionSelect.options[positionSelect.selectedIndex];
+            const description = selectedOption.dataset.description || 'Please select a position to view details.';
+            const positionName = selectedOption.textContent || '';
+
+            document.getElementById('positionDescription').textContent = description;
+            document.getElementById('selectedPosition').textContent = positionName;
+        }
+
+        // Function to submit the form data
+        function submitApplication() {
+            const form = document.getElementById('applicationForm');
+            const formData = new FormData(form);
+
+            if (!document.getElementById('first_name').value ||
+                !document.getElementById('last_name').value ||
+                !document.getElementById('email').value ||
+                !document.getElementById('phone').value ||
+                !document.getElementById('position').value ||
+                !document.getElementById('resume').files.length) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+
+            fetch('submit_application.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.text())
+                .then(result => {
+                    alert('Application submitted successfully!');
+                    form.reset();
+                    document.getElementById('positionDescription').textContent = 'Please select a position to view details.';
+                    document.getElementById('selectedPosition').textContent = '';
+                })
+                .catch(error => {
+                    console.error('Error submitting application:', error);
+                    alert('There was an error submitting your application.');
+                });
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function () {
+            fetchPositions(); // Fetch positions when page loads
+
+            document.getElementById('position').addEventListener('change', updatePositionDetails);
+
+            document.getElementById('submitApplication').addEventListener('click', function () {
+                submitApplication();
             });
         });
-        </script>
+    </script>
 
 
-</body></html>
+</body>
+
+</html>

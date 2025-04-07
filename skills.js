@@ -1,9 +1,8 @@
 // Main Application Controller
-/*document.addEventListener("DOMContentLoaded", function () {
-    // Configuration
-    const API_BASE_URL = 'http://localhost:81';
-    const EVALUATION_API_URL = 'http://localhost:81';
-    
+const API_BASE_URL = 'http://localhost:5000';
+const EVALUATION_API_URL = 'http://localhost:5001';
+/*
+document.addEventListener("DOMContentLoaded", function () {
     // Initialize the application
     initPositionDropdown();
     setupEvaluationResultsDisplay();
@@ -171,7 +170,7 @@ async function fetchAndDisplayEvaluationResults() {
     resultsContent.innerHTML = '<p>Loading evaluation results...</p>';
     
     try {
-        const response = await fetch(`${EVALUATION_API_URL}/get-evaluation-results`);
+        const response = await fetch(`${API_BASE_URL}/get-evaluation-results`);
         
         if (!response.ok) {
             throw new Error(`Network error: ${response.status}`);
