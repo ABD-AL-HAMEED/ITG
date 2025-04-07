@@ -69,7 +69,8 @@ body {
     display: flex;
     justify-content: center;
     padding: 10px 0;
-    background-color: transparent; /* Add this line */
+    background-color: transparent;
+    /* Add this line */
 }
 
 .logo-container img {
@@ -395,10 +396,10 @@ body {
     align-items: center;
     justify-content: center;
     z-index: 1000;
-  }
-  
-  /* Modal Card Container */
-  .modal-card {
+}
+
+/* Modal Card Container */
+.modal-card {
     background: white;
     padding: 30px;
     border-radius: 12px;
@@ -406,31 +407,31 @@ body {
     max-width: 90%;
     box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
     animation: fadeIn 0.25s ease-in-out;
-  }
-  
-  /* Modal Header */
-  .modal-card h2 {
+}
+
+/* Modal Header */
+.modal-card h2 {
     margin-top: 0;
     margin-bottom: 25px;
     color: #367c96;
     font-size: 22px;
     text-align: center;
-  }
-  
-  /* Form Group */
-  .form-group {
+}
+
+/* Form Group */
+.form-group {
     margin-bottom: 20px;
-  }
-  
-  .form-group label {
+}
+
+.form-group label {
     display: block;
     font-weight: bold;
     color: #333;
     margin-bottom: 6px;
-  }
-  
-  /* Input & Select & Textarea styling */
-  .modal-input {
+}
+
+/* Input & Select & Textarea styling */
+.modal-input {
     width: 100%;
     padding: 10px 12px;
     border: 1px solid #ccc;
@@ -438,42 +439,49 @@ body {
     font-size: 15px;
     background-color: #fefefe;
     transition: border-color 0.2s;
-  }
-  
-  .modal-input:focus {
+}
+
+.modal-input:focus {
     border-color: #367c96;
     outline: none;
-  }
-  
-  /* Button Row */
-  .modal-actions {
+}
+
+/* Button Row */
+.modal-actions {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
     margin-top: 10px;
-  }
-  
-  /* Fade in animation */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.96); }
-    to { opacity: 1; transform: scale(1); }
-  }
-  
-  .dropdown-checkbox {
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.dropdown-checkbox {
     position: relative;
     width: 100%;
-  }
-  
-  .dropdown-toggle {
+}
+
+.dropdown-toggle {
     width: 100%;
     padding: 8px 10px;
     background-color: #f0f0f0;
     border: 1px solid #ccc;
     border-radius: 6px;
     cursor: pointer;
-  }
-  
-  .dropdown-menu {
+}
+
+.dropdown-menu {
     display: none;
     position: absolute;
     top: 105%;
@@ -485,14 +493,14 @@ body {
     border: 1px solid #ccc;
     padding: 10px;
     z-index: 100;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  }
-  
-  .dropdown-menu.show {
-    display: block;
-  }
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
 
-  /* Styling the select element */
+.dropdown-menu.show {
+    display: block;
+}
+
+/* Styling the select element */
 #position {
     font-size: 16px;
     padding: 10px;
@@ -539,4 +547,3 @@ body {
 #position {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
-

@@ -14,7 +14,7 @@ function initPositionDropdown() {
     if (positionSelect) {
         console.log("Position dropdown found");
         positionSelect.addEventListener("change", SkillsList);
-        
+
         // Initialize skills list if position is already selected
         if (positionSelect.value) {
             SkillsList();
@@ -62,7 +62,7 @@ function SkillsList() {
 
     // Filter positionSkills based on position_id
     let selectedSkills = positionSkills.filter(skill => skill.position_id === selectedPosition);
-    
+
     let softSkills = selectedSkills
         .map(skill => skills.find(s => s.id === skill.skill_id && s.type === "Soft"))
         .filter(Boolean);
@@ -94,7 +94,7 @@ function SkillsList() {
     submitButton.textContent = "Submit Skills";
     submitButton.id = "skills-submit-button";
     submitButton.onclick = sendSkillsData;
-    
+
     techSkillsList.parentNode.appendChild(submitButton);
 }
 
@@ -102,7 +102,7 @@ function sendSkillsData() {
     // Get selected position
     let positionSelect = document.getElementById("position");
     let selectedPosition = positionSelect.value;
-    
+
     // Get checked skills and collect just their names
     let softSkillNames = Array.from(
         document.querySelectorAll('#soft-skills-list input.skill-checkbox:checked')
@@ -130,25 +130,25 @@ function sendSkillsData() {
     };
 
     showLoadingIndicator();
-    
+
     fetch(`${API_BASE_URL}/receive`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataToSend)
     })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Success:", data);
-        hideLoadingIndicator();
-        alert(`Successfully submitted skills for position!\nServer response: ${data.message}`);
-        // After submitting skills, fetch and display the evaluation results
-        fetchAndDisplayEvaluationResults();
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        hideLoadingIndicator();
-        alert("Error submitting skills. Please check console for details.");
-    });
+        .then(response => response.json())
+        .then(data => {
+            console.log("Success:", data);
+            hideLoadingIndicator();
+            alert(`Successfully submitted skills for position!\nServer response: ${data.message}`);
+            // After submitting skills, fetch and display the evaluation results
+            fetchAndDisplayEvaluationResults();
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            hideLoadingIndicator();
+            alert("Error submitting skills. Please check console for details.");
+        });
 }
 
 // Evaluation Results Display Functions
@@ -161,29 +161,29 @@ function setupEvaluationResultsDisplay() {
             <div id="results-content"></div>
         </div>
     `;
-    
+
     document.getElementById('refresh-results').addEventListener('click', fetchAndDisplayEvaluationResults);
 }
 
 async function fetchAndDisplayEvaluationResults() {
     const resultsContent = document.getElementById('results-content');
     resultsContent.innerHTML = '<p>Loading evaluation results...</p>';
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/get-evaluation-results`);
-        
+
         if (!response.ok) {
             throw new Error(`Network error: ${response.status}`);
         }
-        
+
         const result = await response.json();
-        
+
         if (!result.success) {
             throw new Error(result.error || "Unknown server error");
         }
-        
+
         displayEvaluationResults(result.data, resultsContent);
-        
+
     } catch (error) {
         console.error("Failed to fetch evaluation results:", error);
         resultsContent.innerHTML = `<p class="error">Error loading results: ${error.message}</p>`;
@@ -193,18 +193,18 @@ async function fetchAndDisplayEvaluationResults() {
 function displayEvaluationResults(evaluations, container) {
     // Handle both array and single object formats
     const evaluationsList = Array.isArray(evaluations) ? evaluations : [evaluations];
-    
+
     if (evaluationsList.length === 0) {
         container.innerHTML = '<p>No evaluation results available</p>';
         return;
     }
-    
+
     let html = `
         <div class="summary">
             <p>Showing ${evaluationsList.length} evaluation(s)</p>
         </div>
     `;
-    
+
     evaluationsList.forEach((evaluation, index) => {
         html += `
             <div class="evaluation">
@@ -219,12 +219,12 @@ function displayEvaluationResults(evaluations, container) {
             </div>
         `;
     });
-    
+
     container.innerHTML = html;
-    
+
     // Add event listeners to CV items for detailed view
     document.querySelectorAll('.cv-item').forEach(item => {
-        item.addEventListener('click', function() {
+        item.addEventListener('click', function () {
             const cvData = JSON.parse(this.dataset.cv);
             showCVDetails(cvData);
         });
@@ -235,7 +235,7 @@ function renderCVsList(cvs) {
     if (!cvs || cvs.length === 0) {
         return '<p>No CVs in this evaluation</p>';
     }
-    
+
     return `
         <h4>CVs Evaluated (${cvs.length}):</h4>
         <ul class="cv-list">
@@ -290,11 +290,11 @@ function showCVDetails(cv) {
             </div>
         </div>
     `;
-    
+
     modal.querySelector('.close').addEventListener('click', () => {
         document.body.removeChild(modal);
     });
-    
+
     document.body.appendChild(modal);
 }
 

@@ -79,7 +79,8 @@ body {
     font-size: 0.95rem;
 }
 
-.form-control, .form-select {
+.form-control,
+.form-select {
     height: 45px;
     border: 1px solid var(--itg-border);
     border-radius: 4px;
@@ -87,7 +88,8 @@ body {
     font-size: 0.95rem;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
     border-color: var(--itg-blue);
     box-shadow: 0 0 0 0.2rem rgba(0, 86, 179, 0.25);
 }
@@ -160,11 +162,11 @@ textarea.form-control {
     .hero-overlay {
         padding: 20px;
     }
-    
+
     .hero-overlay h1 {
         font-size: 1.8rem;
     }
-    
+
     .application-card {
         margin-top: -30px;
         padding: 20px;
@@ -175,11 +177,11 @@ textarea.form-control {
     .hero-overlay {
         padding: 15px;
     }
-    
+
     .hero-overlay h1 {
         font-size: 1.5rem;
     }
-    
+
     .form-header h2 {
         font-size: 1.5rem;
     }

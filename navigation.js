@@ -56,8 +56,8 @@ function navigate(section, event = null) {
                         </thead>
                         <tbody>
                         ${data.candidates
-                            .filter(candidate => candidate.is_favorite === "1") // Only include favorite candidates
-                            .map(candidate => `
+                        .filter(candidate => candidate.is_favorite === "1") // Only include favorite candidates
+                        .map(candidate => `
                                 <tr>
                                     <td>${candidate.id}</td>
                                     <td>${candidate.first_name}</td>
