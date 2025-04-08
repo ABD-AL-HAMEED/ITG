@@ -547,3 +547,92 @@ body {
 #position {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
+
+/* Save Button (Same as edit-skill-btn) */
+#saveSkillBtn.modal-input {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+#saveSkillBtn.modal-input:hover {
+    background-color: #45a049; /* Darker green */
+}
+
+/* Cancel Button (Same as delete-skill-btn) */
+#cancelSkillBtn.modal-input {
+    background-color: #f44336; /* Red */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+#cancelSkillBtn.modal-input:hover {
+    background-color: #e53935; /* Darker red */
+}
+/* Technical Button */
+#technicalBtn {
+    background-color: rgb(54, 124, 150); /* Default background color */
+    color: white; /* Text color */
+    border: 2px solid rgb(54, 124, 150); /* Border color matching background */
+    border-radius: 8px; /* Rounded corners */
+    padding: 12px 24px; /* Padding for the button */
+    font-size: 16px; /* Font size */
+    font-weight: 600; /* Font weight for emphasis */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s, color 0.3s, transform 0.2s; /* Smooth transitions */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Hover effect for Technical Button */
+#technicalBtn:hover {
+    background-color: rgb(34, 94, 118); /* Darker shade on hover */
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+/* Soft Button */
+#softBtn {
+    background-color: rgb(54, 124, 150); /* Default background color */
+    color: white; /* Text color */
+    border: 2px solid rgb(54, 124, 150); /* Border color matching background */
+    border-radius: 8px; /* Rounded corners */
+    padding: 12px 24px; /* Padding for the button */
+    font-size: 16px; /* Font size */
+    font-weight: 600; /* Font weight for emphasis */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s, color 0.3s, transform 0.2s; /* Smooth transitions */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Hover effect for Soft Button */
+#softBtn:hover {
+    background-color: rgb(34, 94, 118); /* Darker shade on hover */
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+/* Active state for Technical Button */
+#technicalBtn.active {
+    background-color: rgb(0, 160, 220); /* Different color when active */
+    color: white; /* Text color */
+    border-color: rgb(0, 160, 220); /* Matching border */
+}
+
+/* Active state for Soft Button */
+#softBtn.active {
+    background-color: rgb(0, 160, 220); /* Different color when active (light pink) */
+    color: white; /* Text color */
+    border-color: rgb(0, 160, 220); /* Matching border */
+}

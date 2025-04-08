@@ -117,7 +117,7 @@ function navigate(section, event = null) {
                                         <td>${skill.Description || 'N/A'}</td>
                                         <td>
                                             <button class="edit-skill-btn" onclick="openEditSkillModal(${skill.id})">Edit</button>
-                                            <button class="delete-skill-btn" onclick="deleteSkill(${skill.id})">Delete</button>
+                                            <button class="delete-skill-btn" onclick="deleteSkill(${skill.id}, '${skill.skill_name}')">Delete</button>
                                         </td>
                                     </tr>`).join('')}
                             </tbody>
@@ -158,7 +158,7 @@ function navigate(section, event = null) {
             case 'positions':
                 htmlContent = `
                         <h2>Available Positions</h2>
-                        <button class="new-pos-btn" onclick="createPosition()">New Position</button>
+                        <button class="new-pos-btn" onclick="openCreatePositionModal()">New Position</button>
                         <table class="skills-table">
                             <thead>
                                 <tr>
@@ -190,6 +190,45 @@ function navigate(section, event = null) {
                 }).join('')}
                             </tbody>
                         </table>
+
+                        <!-- Create Position Modal -->
+                        <div id="createPositionModal" class="modal-overlay">
+                            <div class="modal-card">
+                                <h2>Create New Position</h2>
+                                <input type="hidden" id="createPositionId" />
+
+                                <div class="form-group">
+                                    <label for="createPositionName">Position Name</label>
+                                    <input type="text" id="createPositionName" class="modal-input" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="createPositionDescription">Description</label>
+                                    <textarea id="createPositionDescription" class="modal-input" rows="3"></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="createPositionExperience">Required Experience (Years)</label>
+                                    <input type="number" id="createPositionExperience" class="modal-input" min="0" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Skills</label>
+                                    <div class="dropdown-checkbox">
+                                        <button type="button" class="dropdown-toggle" onclick="toggleSkillDropdown('create')">Select Skills</button>
+                                        <div class="dropdown-menu" id="dropdown-menu-create">
+                                            <!-- Skill checkboxes will be injected here -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-actions">
+                                    <button class="edit-pos-btn" onclick="saveCreatePosition()">Create</button>
+                                    <button class="delete-pos-btn" onclick="closeCreatePositionModal()">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+
                         
                         <!-- Edit Position Modal -->
                         <div id="editPositionModal" class="modal-overlay">
@@ -363,33 +402,116 @@ function deletePosition(id) {
 
 function createPosition() {
     fetchData().then(data => {
-        const name = prompt("Enter Position Name:");
-        if (!name) return;
+        if (!data) return;
 
-        const desc = prompt("Enter Description:", '');
-        const exp = prompt("Enter Required Experience (in years):", '');
+        // Clear previous values
+        document.getElementById('editPositionId').value = '';
+        document.getElementById('editPositionName').value = '';
+        document.getElementById('editPositionDescription').value = '';
+        document.getElementById('editPositionExperience').value = '';
 
-        const skillOptions = data.skills.map(skill => `${skill.id}: ${skill.skill_name}`).join('\n');
-        const selected = prompt("Enter Skill IDs separated by commas:\n" + skillOptions, '');
-        const selectedSkills = selected?.split(',').map(s => s.trim()).filter(Boolean).join(',');
+        // Generate skills checkboxes
+        const skillsHTML = (data.skills || []).map(skill => `
+            <label style="display: block; margin-bottom: 6px;">
+                <input type="checkbox" name="edit-skill-checkbox" value="${skill.id}">
+                ${skill.skill_name}
+            </label>
+        `).join('');
 
-        fetch('manage_pos.php?action=create', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `position_name=${encodeURIComponent(name)}&description=${encodeURIComponent(desc)}&Required_Experience=${encodeURIComponent(exp)}&skills=${encodeURIComponent(selectedSkills)}`
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Position created successfully!");
-                    clearCache();
-                    navigate('positions');
-                } else {
-                    alert("Error creating position: " + (data.error || "Unknown error"));
-                }
-            });
+        document.getElementById('dropdown-menu-edit').innerHTML = skillsHTML;
+        document.getElementById('editPositionModal').style.display = 'flex';
+
+        // Attach special "save" behavior for creating
+        document.getElementById('saveEditPositionButton').onclick = saveCreatePosition;
     });
 }
+
+function saveCreatePosition() {
+    const name = document.getElementById("editPositionName").value;
+    const desc = document.getElementById("editPositionDescription").value;
+    const exp = document.getElementById("editPositionExperience").value;
+
+    const selectedSkills = Array.from(document.querySelectorAll('input[name="edit-skill-checkbox"]:checked'))
+        .map(cb => cb.value)
+        .join(',');
+
+    fetch('manage_pos.php?action=create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `position_name=${encodeURIComponent(name)}&description=${encodeURIComponent(desc)}&Required_Experience=${encodeURIComponent(exp)}&skills=${encodeURIComponent(selectedSkills)}`
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert("Position created successfully!");
+                closeEditPositionModal();
+                clearCache();
+                navigate('positions');
+            } else {
+                alert("Error creating position: " + (data.error || "Unknown error"));
+            }
+        })
+        .catch(err => console.error("Error creating position:", err));
+}
+
+function openCreatePositionModal() {
+    fetchData().then(data => {
+        if (!data) return;
+
+        // Prepare skills checkboxes
+        const skillsHTML = (data.skills || []).map(skill => `
+            <label style="display: block; margin-bottom: 6px;">
+                <input type="checkbox" name="create-skill-checkbox" value="${skill.id}">
+                ${skill.skill_name}
+            </label>
+        `).join('');
+
+        document.getElementById('createPositionName').value = '';
+        document.getElementById('createPositionDescription').value = '';
+        document.getElementById('createPositionExperience').value = '';
+        document.getElementById('dropdown-menu-create').innerHTML = skillsHTML;
+
+        document.getElementById('createPositionModal').style.display = 'flex';
+    });
+}
+
+function closeCreatePositionModal() {
+    document.getElementById('createPositionModal').style.display = 'none';
+}
+
+function saveCreatePosition() {
+    const name = document.getElementById("createPositionName").value.trim();
+    const desc = document.getElementById("createPositionDescription").value.trim();
+    const exp = document.getElementById("createPositionExperience").value.trim();
+
+    const selectedSkills = Array.from(document.querySelectorAll('input[name="create-skill-checkbox"]:checked'))
+        .map(cb => cb.value)
+        .join(',');
+
+    if (!name) {
+        alert("Please enter a position name.");
+        return;
+    }
+
+    fetch('manage_pos.php?action=create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `position_name=${encodeURIComponent(name)}&description=${encodeURIComponent(desc)}&Required_Experience=${encodeURIComponent(exp)}&skills=${encodeURIComponent(selectedSkills)}`
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert("Position created successfully!");
+                closeCreatePositionModal();
+                clearCache();
+                navigate('positions');
+            } else {
+                alert("Error creating position: " + (data.error || "Unknown error"));
+            }
+        })
+        .catch(err => console.error("Error creating position:", err));
+}
+
 
 // Toggle dropdown menu
 function toggleSkillDropdown(id) {
@@ -644,30 +766,30 @@ function SkillsList() {
     });
 }
 
-function deleteSkill(skillId) {
-    if (confirm(`Are you sure you want to delete skill ID "${skillId}"?`)) {
-        fetch("manage_skills.php?action=delete", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: `skill_id=${encodeURIComponent(skillId)}`,
+function deleteSkill(skillId, skillName) {
+    // Show confirmation dialog with skill name
+    if (confirm(`Are you sure you want to delete the skill "${skillName}"?`)) {
+        // If confirmed, call the deleteSkill function with skillId
+        fetch('manage_skills.php?action=delete', {
+            method: 'POST',
+            body: new URLSearchParams({ 'skill_id': skillId })
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Skill deleted successfully.");
-                    clearCache();
-                    navigate('skills');
-                } else {
-                    alert("Error: " + (data.error || "Failed to delete skill."));
-                }
-            })
-            .catch(error => {
-                alert("An unexpected error occurred: " + error.message);
-            });
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                clearCache();
+                navigate('skills');
+            } else {
+                alert('Failed to delete skill: ' + (result.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while deleting the skill.');
+        });
     }
 }
+
 
 function closeSkillModal() {
     document.getElementById("editSkillModal").style.display = "none";
@@ -720,36 +842,125 @@ function updateSkill() {
         .catch(error => console.error("Error:", error));
 }
 
-function openNewSkillPrompt() {
-    let skillName = prompt("Enter Skill Name:");
-    if (!skillName) return;
 
-    let skillType = prompt("Enter Skill Type (Technical or Soft):");
-    if (!skillType || (skillType.toLowerCase() !== "technical" && skillType.toLowerCase() !== "soft")) {
-        alert("Invalid skill type. Choose 'Technical' or 'Soft'.");
-        return;
+function openNewSkillPrompt() { 
+    // Create modal background (overlay)
+    const modalBackground = document.createElement('div');
+    modalBackground.className = 'modal-overlay';
+    modalBackground.style.display = 'flex'; // Make it visible immediately
+
+    // Create modal container
+    const modal = document.createElement('div');
+    modal.className = 'modal-card';
+    modal.innerHTML = `
+        <h2>Add New Skill</h2>
+
+        <label for="skillNameInput">Skill Name:</label>
+        <input type="text" id="skillNameInput" class="modal-input" style="margin-bottom: 15px;"/>
+
+        <label>Skill Type:</label>
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <button id="technicalBtn" style="flex: 1; padding: 8px;">Technical</button>
+            <button id="softBtn" style="flex: 1; padding: 8px;">Soft</button>
+        </div>
+
+        <label for="skillDescInput">Skill Description:</label>
+        <textarea id="skillDescInput" class="modal-input" style="height: 80px; margin-bottom: 15px;"></textarea>
+
+        <div class="modal-actions">
+            <button id="saveSkillBtn" class="modal-input" style="width: auto; padding: 8px 16px;">Save</button>
+            <button id="cancelSkillBtn" class="modal-input" style="width: auto; padding: 8px 16px;">Cancel</button>
+        </div>
+    `;
+
+    // Add modal to the overlay
+    modalBackground.appendChild(modal);
+    document.body.appendChild(modalBackground);
+
+    // Handle Cancel Button
+    modal.querySelector('#cancelSkillBtn').addEventListener('click', function() {
+        document.body.removeChild(modalBackground);
+    });
+
+    let selectedSkillType = '';
+
+    modal.querySelector('#technicalBtn').addEventListener('click', function() {
+        selectedSkillType = 'Technical';
+        updateSkillTypeButtons();
+    });
+
+    modal.querySelector('#softBtn').addEventListener('click', function() {
+        selectedSkillType = 'Soft';
+        updateSkillTypeButtons();
+    });
+
+    function updateSkillTypeButtons() {
+        const buttons = [modal.querySelector('#technicalBtn'), modal.querySelector('#softBtn')];
+    
+        // Remove background color and reset styles for all buttons
+        buttons.forEach(button => {
+            button.style.backgroundColor = ''; // Reset background color
+            button.style.color = ''; // Reset text color
+            button.classList.remove('active'); // Remove 'active' class
+        });
+    
+        // Set styles for the selected button
+        if (selectedSkillType === 'Technical') {
+            modal.querySelector('#technicalBtn').style.backgroundColor = '#00a0dc'; // Active background for Technical
+            modal.querySelector('#technicalBtn').style.color = '#fff'; // Text color white
+            modal.querySelector('#technicalBtn').classList.add('active'); // Add active class to Technical button
+        } else if (selectedSkillType === 'Soft') {
+            modal.querySelector('#softBtn').style.backgroundColor = '#00a0dc'; // Active background for Soft (light pink)
+            modal.querySelector('#softBtn').style.color = '#fff'; // Text color white
+            modal.querySelector('#softBtn').classList.add('active'); // Add active class to Soft button
+        }
     }
+    
 
-    let skillDesc = prompt("Enter Skill Description:");
-    if (!skillDesc) return;
+    modal.querySelector('#saveSkillBtn').addEventListener('click', function() {
+        const skillName = modal.querySelector('#skillNameInput').value.trim();
+        const skillDesc = modal.querySelector('#skillDescInput').value.trim();
 
-    const body = `skill_name=${encodeURIComponent(skillName)}&skill_type=${encodeURIComponent(skillType)}&skill_description=${encodeURIComponent(skillDesc)}`;
+        if (!skillName || !selectedSkillType || !skillDesc) {
+            alert('Please fill out all fields.');
+            return;
+        }
 
-    fetch('manage_skills.php?action=create', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert("Skill added successfully!");
+        // Create the correct FormData keys
+        const formData = new FormData();
+        formData.append('skill_name', skillName);         // <-- must match PHP
+        formData.append('skill_type', selectedSkillType);          // <-- must match PHP
+        formData.append('skill_description', skillDesc);   // <-- must match PHP
+
+        // Send the data
+        fetch('manage_skills.php?action=create', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json()) // Expecting JSON now
+        .then(result => {
+
+            if (result.success) {
+                // Close modal after success
+                document.body.removeChild(modalBackground);
+                
+                // Clear input fields
+                modal.querySelector('#skillNameInput').value = '';
+                modal.querySelector('#skillDescInput').value = '';
+                selectedSkillType = '';
+
                 clearCache();
                 navigate('skills');
             } else {
-                alert('Error: ' + data.error);
+                alert('Failed to save skill: ' + (result.error || 'Unknown error'));
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while saving the skill.');
         });
+    });
 }
+
+
+
