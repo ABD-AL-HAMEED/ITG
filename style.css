@@ -649,3 +649,57 @@ body {
 .export-btn:hover {
   background-color: #2d6f84;
 }
+/* Search Input for Position */
+#positionSearchInput {
+    width: 100%;
+    max-width: 300px;          /* Adjust as needed */
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    background-color: #fefefe;
+    transition: border-color 0.2s;
+    box-sizing: border-box;    /* Ensures padding doesn’t break width */
+  }
+  
+  #positionSearchInput:focus {
+    border-color: #367c96;     /* Your primary accent color */
+    outline: none;
+  }
+  
+  #positionSearchInput::placeholder {
+    color: #999;               /* Subtle placeholder text */
+  }
+  
+  /* Optional: add a little search icon inside the input */
+  #positionSearchInput {
+    background: url('data:image/svg+xml;utf8,<svg fill="%23999" height="16" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>') no-repeat 10px center;
+    padding-left: 36px;        /* Make room for the icon */
+  }
+  /*      */
+  #skillSearchInput {
+    width: 100%;
+    max-width: 300px;          /* Adjust as needed */
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    background-color: #fefefe;
+    transition: border-color 0.2s;
+    box-sizing: border-box;    /* Ensures padding doesn’t break width */
+  }
+  
+  #skillSearchInput:focus {
+    border-color: #367c96;     /* Your primary accent color */
+    outline: none;
+  }
+  
+  #skillSearchInput::placeholder {
+    color: #999;               /* Subtle placeholder text */
+  }
+  
+  /* Optional: add a little search icon inside the input */
+  #skillSearchInput {
+    background: url('data:image/svg+xml;utf8,<svg fill="%23999" height="16" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>') no-repeat 10px center;
+    padding-left: 36px;        /* Make room for the icon */
+  }

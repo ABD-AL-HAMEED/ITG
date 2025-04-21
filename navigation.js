@@ -29,8 +29,10 @@ function navigate(section, event = null) {
         return;
     }
 
+    let originalSkillsOrder = [];
     fetchData().then(data => {
         let htmlContent = '';
+        originalSkillsOrder = [...data.skills];
 
         switch (section) {
             case 'dashboard':
@@ -100,11 +102,12 @@ function navigate(section, event = null) {
                 htmlContent = `
                         <h2>Manage Skills</h2>
                         <button class="new-skill-btn" onclick="openNewSkillPrompt()">New Skill</button>
+                        <input type="text" id="skillSearchInput" placeholder="Search skills..." oninput="filterSkills()" class="modal-input"/>
                         <table class="skills-table">
                             <thead>
                                 <tr>
                                     <th>Skill Name</th>
-                                    <th>Type</th>
+                                    <th id="sort-type-header" style="cursor: pointer;">Type 🔽</th>
                                     <th>Description</th>
                                     <th>Actions</th>
                                 </tr>
@@ -159,6 +162,7 @@ function navigate(section, event = null) {
                 htmlContent = `
                         <h2>Available Positions</h2>
                         <button class="new-pos-btn" onclick="openCreatePositionModal()">New Position</button>
+                        <input type="text" id="positionSearchInput" placeholder="Search positions..." " oninput="filterPositions()" />
                         <table class="skills-table">
                             <thead>
                                 <tr>
@@ -276,6 +280,7 @@ function navigate(section, event = null) {
         }
 
         content.innerHTML = htmlContent;
+        attachSkillSortingHandler(data, originalSkillsOrder);
     }).catch(error => {
         content.innerHTML = `<p>Error: ${error.message}</p>`;
     });
@@ -297,7 +302,36 @@ function setupNavigation() {
     });
 }
 
-///////////////////////////////////////////////////// Positions ///////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////Positions/////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function filterPositions() {
+    const filter = document
+        .getElementById('positionSearchInput')
+        .value.trim()
+        .toLowerCase();
+
+    document
+        .querySelectorAll('.skills-table tbody tr')
+        .forEach(row => {
+            const positionName = row.querySelector('.position-name').textContent.trim().toLowerCase();
+            const positionDesc = row.querySelector('.position-desc').textContent.trim().toLowerCase();
+            const positionExp = row.querySelector('.position-exp').textContent.trim().toLowerCase();
+
+            // Check if any of the fields contain the filter term
+            if (positionName.includes(filter) || positionDesc.includes(filter) || positionExp.includes(filter)) {
+                row.style.display = ''; // Show the row
+            } else {
+                row.style.display = 'none'; // Hide the row
+            }
+        });
+}
+
 
 async function fetchData() {
     try {
@@ -752,7 +786,78 @@ function loadCVReport() {
         });
 }
 
-//////////////////////////////////////////skills////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////skills////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+let sortDirection = 'asc'; // Global toggle variable
+
+function renderSkillsTable(data) {
+    const tbody = document.querySelector('.skills-table tbody');
+    tbody.innerHTML = data.skills.map(skill => `
+        <tr>
+            <td>${skill.skill_name}</td>
+            <td><span class="skill-type ${skill.type.toLowerCase()}">${skill.type}</span></td>
+            <td>${skill.Description || 'N/A'}</td>
+            <td>
+                <button class="edit-skill-btn" onclick="openEditSkillModal(${skill.id})">Edit</button>
+                <button class="delete-skill-btn" onclick="deleteSkill(${skill.id}, '${skill.skill_name}')">Delete</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+
+function attachSkillSortingHandler(data, originalSkillsOrder) {
+    let sortState = 'unsorted'; // Can be: 'unsorted', 'asc', 'desc'
+
+    const sortHeader = document.getElementById('sort-type-header');
+    if (!sortHeader) return;
+
+    sortHeader.addEventListener('click', () => {
+        if (sortState === 'unsorted') {
+            // Sort ascending
+            sortState = 'asc';
+            sortHeader.innerText = 'Type 🔽';
+
+            data.skills.sort((a, b) => {
+                const typeA = a.type.toUpperCase();
+                const typeB = b.type.toUpperCase();
+                return typeA.localeCompare(typeB);
+            });
+
+        } else if (sortState === 'asc') {
+            // Sort descending
+            sortState = 'desc';
+            sortHeader.innerText = 'Type 🔼';
+
+            data.skills.sort((a, b) => {
+                const typeA = a.type.toUpperCase();
+                const typeB = b.type.toUpperCase();
+                return typeB.localeCompare(typeA);
+            });
+
+        } else {
+            // Restore original order
+            sortState = 'unsorted';
+            sortHeader.innerText = 'Type ⏹️';
+
+            data.skills = [...originalSkillsOrder]; // Restore original
+        }
+
+        // Re-render table after each state
+        renderSkillsTable(data);
+    });
+}
+
+
+
+
+
 
 function SkillsList() {
     const selectedPositionId = parseInt(document.getElementById('position').value);
@@ -992,6 +1097,27 @@ function openNewSkillPrompt() {
                 alert('An error occurred while saving the skill.');
             });
     });
+}
+
+function filterSkills() {
+    const filter = document
+        .getElementById('skillSearchInput')
+        .value
+        .trim()
+        .toLowerCase();
+
+    document
+        .querySelectorAll('.skills-table tbody tr')
+        .forEach(row => {
+            const cells = row.getElementsByTagName('td');
+            const name = (cells[0]?.textContent || '').trim().toLowerCase();
+            const desc = (cells[2]?.textContent || '').trim().toLowerCase();
+
+            row.style.display =
+                name.includes(filter) || desc.includes(filter)
+                    ? ''
+                    : 'none';
+        });
 }
 
 
