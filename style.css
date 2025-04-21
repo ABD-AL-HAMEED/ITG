@@ -636,3 +636,16 @@ body {
     color: white; /* Text color */
     border-color: rgb(0, 160, 220); /* Matching border */
 }
+
+.export-btn {
+  background-color: #367c96;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+.export-btn:hover {
+  background-color: #2d6f84;
+}

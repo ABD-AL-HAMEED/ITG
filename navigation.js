@@ -560,7 +560,7 @@ function handlePositionChange() {
 
         container.innerHTML = filteredCandidates.length
             ? `
-                <table class="dashboard-table">
+                <table id="dashboard-table" class="dashboard-table">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -594,11 +594,43 @@ function handlePositionChange() {
                         `).join('')}
                     </tbody>
                 </table>
+                <button onclick="exportTableToExcel('dashboard-table', 'candidates-data')" class="export-btn">
+                Export to Excel
+                </button>
             `
             : '<p>No candidates found for this position</p>';
     });
 }
+function exportTableToExcel(tableID, filename = 'exported_data') {
+    const table = document.getElementById(tableID);
+    const workbook = XLSX.utils.book_new();
 
+    // Convert table to SheetJS worksheet
+    const worksheet = XLSX.utils.table_to_sheet(table, {
+        raw: false // enables proper formatting like date and text
+    });
+
+    // Format specific columns (like phone and date)
+    const range = XLSX.utils.decode_range(worksheet['!ref']);
+    for (let row = range.s.r + 1; row <= range.e.r; row++) {
+        // Column E (Phone) = 4th index
+        const phoneCell = worksheet[XLSX.utils.encode_cell({ r: row, c: 4 })];
+        if (phoneCell) {
+            phoneCell.z = '@'; // force text format
+            phoneCell.t = 's'; // force type string
+        }
+
+        // Column F (Date) = 5th index
+        const dateCell = worksheet[XLSX.utils.encode_cell({ r: row, c: 5 })];
+        if (dateCell) {
+            dateCell.z = 'dd/mm/yyyy hh:mm'; // format date
+        }
+    }
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Candidates");
+
+    XLSX.writeFile(workbook, `${filename}.xlsx`);
+}
 
 function toggleFavorite(candidateId, makeFavorite) {
     fetch("mark_favorite.php", {
@@ -774,19 +806,19 @@ function deleteSkill(skillId, skillName) {
             method: 'POST',
             body: new URLSearchParams({ 'skill_id': skillId })
         })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                clearCache();
-                navigate('skills');
-            } else {
-                alert('Failed to delete skill: ' + (result.error || 'Unknown error'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while deleting the skill.');
-        });
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    clearCache();
+                    navigate('skills');
+                } else {
+                    alert('Failed to delete skill: ' + (result.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while deleting the skill.');
+            });
     }
 }
 
@@ -843,7 +875,7 @@ function updateSkill() {
 }
 
 
-function openNewSkillPrompt() { 
+function openNewSkillPrompt() {
     // Create modal background (overlay)
     const modalBackground = document.createElement('div');
     modalBackground.className = 'modal-overlay';
@@ -878,32 +910,32 @@ function openNewSkillPrompt() {
     document.body.appendChild(modalBackground);
 
     // Handle Cancel Button
-    modal.querySelector('#cancelSkillBtn').addEventListener('click', function() {
+    modal.querySelector('#cancelSkillBtn').addEventListener('click', function () {
         document.body.removeChild(modalBackground);
     });
 
     let selectedSkillType = '';
 
-    modal.querySelector('#technicalBtn').addEventListener('click', function() {
+    modal.querySelector('#technicalBtn').addEventListener('click', function () {
         selectedSkillType = 'Technical';
         updateSkillTypeButtons();
     });
 
-    modal.querySelector('#softBtn').addEventListener('click', function() {
+    modal.querySelector('#softBtn').addEventListener('click', function () {
         selectedSkillType = 'Soft';
         updateSkillTypeButtons();
     });
 
     function updateSkillTypeButtons() {
         const buttons = [modal.querySelector('#technicalBtn'), modal.querySelector('#softBtn')];
-    
+
         // Remove background color and reset styles for all buttons
         buttons.forEach(button => {
             button.style.backgroundColor = ''; // Reset background color
             button.style.color = ''; // Reset text color
             button.classList.remove('active'); // Remove 'active' class
         });
-    
+
         // Set styles for the selected button
         if (selectedSkillType === 'Technical') {
             modal.querySelector('#technicalBtn').style.backgroundColor = '#00a0dc'; // Active background for Technical
@@ -915,9 +947,9 @@ function openNewSkillPrompt() {
             modal.querySelector('#softBtn').classList.add('active'); // Add active class to Soft button
         }
     }
-    
 
-    modal.querySelector('#saveSkillBtn').addEventListener('click', function() {
+
+    modal.querySelector('#saveSkillBtn').addEventListener('click', function () {
         const skillName = modal.querySelector('#skillNameInput').value.trim();
         const skillDesc = modal.querySelector('#skillDescInput').value.trim();
 
@@ -937,28 +969,28 @@ function openNewSkillPrompt() {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json()) // Expecting JSON now
-        .then(result => {
+            .then(response => response.json()) // Expecting JSON now
+            .then(result => {
 
-            if (result.success) {
-                // Close modal after success
-                document.body.removeChild(modalBackground);
-                
-                // Clear input fields
-                modal.querySelector('#skillNameInput').value = '';
-                modal.querySelector('#skillDescInput').value = '';
-                selectedSkillType = '';
+                if (result.success) {
+                    // Close modal after success
+                    document.body.removeChild(modalBackground);
 
-                clearCache();
-                navigate('skills');
-            } else {
-                alert('Failed to save skill: ' + (result.error || 'Unknown error'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while saving the skill.');
-        });
+                    // Clear input fields
+                    modal.querySelector('#skillNameInput').value = '';
+                    modal.querySelector('#skillDescInput').value = '';
+                    selectedSkillType = '';
+
+                    clearCache();
+                    navigate('skills');
+                } else {
+                    alert('Failed to save skill: ' + (result.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while saving the skill.');
+            });
     });
 }
 
