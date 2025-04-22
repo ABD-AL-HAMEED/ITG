@@ -106,7 +106,7 @@ function navigate(section, event = null) {
                         <table class="skills-table">
                             <thead>
                                 <tr>
-                                    <th>Skill Name</th>
+                                    <th id="sort-name-header" style="cursor: pointer;">Skill Name ⏹️</th>
                                     <th id="sort-type-header" style="cursor: pointer;">Type 🔽</th>
                                     <th>Description</th>
                                     <th>Actions</th>
@@ -166,7 +166,7 @@ function navigate(section, event = null) {
                         <table class="skills-table">
                             <thead>
                                 <tr>
-                                    <th>Position Name</th>
+                                    <th id="sort-position-header" style="cursor: pointer;">Position Name ⏹️</th>
                                     <th>Description</th>
                                     <th>Required Experience</th>
                                     <th>Skills</th>
@@ -280,7 +280,16 @@ function navigate(section, event = null) {
         }
 
         content.innerHTML = htmlContent;
+
+        // Attach skill sorting (already working)
         attachSkillSortingHandler(data, originalSkillsOrder);
+
+        // Attach position sorting — NEW!
+        if (htmlContent.includes('Position Name')) {
+            renderPositionsTable(data); // Make sure the table is rendered before attaching handlers
+            attachPositionSortingHandler(data); // Then attach the sorting
+        }
+
     }).catch(error => {
         content.innerHTML = `<p>Error: ${error.message}</p>`;
     });
@@ -309,6 +318,66 @@ function setupNavigation() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+function renderPositionsTable(data) {
+    const tbody = document.querySelector('.skills-table tbody');
+
+    tbody.innerHTML = data.positions.map(pos => {
+        const skillIds = data.position_skills
+            .filter(ps => parseInt(ps.position_id) === parseInt(pos.id))
+            .map(ps => parseInt(ps.skill_id));
+
+        const skillsList = skillIds.length
+            ? data.skills
+                .filter(skill => skillIds.includes(parseInt(skill.id)))
+                .map(s => s.skill_name).join(', ')
+            : 'No skills linked';
+
+        return `
+            <tr id="position-row-${pos.id}">
+                <td class="position-name">${pos.position_name}</td>
+                <td class="position-desc">${pos.description || 'N/A'}</td>
+                <td class="position-exp">${pos.Required_Experience ? pos.Required_Experience + ' Years' : 'N/A'}</td>
+                <td class="position-skills">${skillsList}</td>
+                <td class="position-actions">
+                    <button class="edit-pos-btn" onclick="editPosition(${pos.id})">Edit</button>
+                    <button class="delete-pos-btn" onclick="deletePosition(${pos.id})">Delete</button>
+                </td>
+            </tr>`;
+    }).join('');
+}
+
+let sortStatePosition = 'unsorted';
+let originalPositionsOrder = [];
+
+function attachPositionSortingHandler(data) {
+    const sortHeader = document.getElementById('sort-position-header');
+    if (!sortHeader) return;
+
+    originalPositionsOrder = [...data.positions]; // Save original on first call
+
+    sortHeader.addEventListener('click', () => {
+        if (sortStatePosition === 'unsorted') {
+            sortStatePosition = 'asc';
+            sortHeader.innerText = 'Position Name 🔽';
+            data.positions.sort((a, b) => a.position_name.localeCompare(b.position_name));
+        } else if (sortStatePosition === 'asc') {
+            sortStatePosition = 'desc';
+            sortHeader.innerText = 'Position Name 🔼';
+            data.positions.sort((a, b) => b.position_name.localeCompare(a.position_name));
+        } else {
+            sortStatePosition = 'unsorted';
+            sortHeader.innerText = 'Position Name ⏹️';
+            data.positions = [...originalPositionsOrder];
+        }
+
+        renderPositionsTable(data); // Re-render table after sort
+    });
+}
+
+
+
 
 function filterPositions() {
     const filter = document
@@ -794,8 +863,6 @@ function loadCVReport() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-let sortDirection = 'asc'; // Global toggle variable
-
 function renderSkillsTable(data) {
     const tbody = document.querySelector('.skills-table tbody');
     tbody.innerHTML = data.skills.map(skill => `
@@ -811,52 +878,75 @@ function renderSkillsTable(data) {
     `).join('');
 }
 
+let sortStateType = 'unsorted'; // For Type column
+let sortStateName = 'unsorted'; // For Name column
 
 function attachSkillSortingHandler(data, originalSkillsOrder) {
-    let sortState = 'unsorted'; // Can be: 'unsorted', 'asc', 'desc'
+  const sortTypeHeader = document.getElementById('sort-type-header');
+  const sortNameHeader = document.getElementById('sort-name-header');
 
-    const sortHeader = document.getElementById('sort-type-header');
-    if (!sortHeader) return;
+  if (!sortTypeHeader || !sortNameHeader) return;
 
-    sortHeader.addEventListener('click', () => {
-        if (sortState === 'unsorted') {
-            // Sort ascending
-            sortState = 'asc';
-            sortHeader.innerText = 'Type 🔽';
+  // 🔠 Skill Name sort
+  sortNameHeader.addEventListener('click', () => {
+    if (sortStateName === 'unsorted') {
+      sortStateName = 'asc';
+      sortNameHeader.innerText = 'Skill Name 🔽';
+      sortTypeHeader.innerText = 'Type ⏹️';
+      sortStateType = 'unsorted';
 
-            data.skills.sort((a, b) => {
-                const typeA = a.type.toUpperCase();
-                const typeB = b.type.toUpperCase();
-                return typeA.localeCompare(typeB);
-            });
+      data.skills.sort((a, b) =>
+        a.skill_name.localeCompare(b.skill_name)
+      );
 
-        } else if (sortState === 'asc') {
-            // Sort descending
-            sortState = 'desc';
-            sortHeader.innerText = 'Type 🔼';
+    } else if (sortStateName === 'asc') {
+      sortStateName = 'desc';
+      sortNameHeader.innerText = 'Skill Name 🔼';
 
-            data.skills.sort((a, b) => {
-                const typeA = a.type.toUpperCase();
-                const typeB = b.type.toUpperCase();
-                return typeB.localeCompare(typeA);
-            });
+      data.skills.sort((a, b) =>
+        b.skill_name.localeCompare(a.skill_name)
+      );
 
-        } else {
-            // Restore original order
-            sortState = 'unsorted';
-            sortHeader.innerText = 'Type ⏹️';
+    } else {
+      sortStateName = 'unsorted';
+      sortNameHeader.innerText = 'Skill Name ⏹️';
 
-            data.skills = [...originalSkillsOrder]; // Restore original
-        }
+      data.skills = [...originalSkillsOrder];
+    }
 
-        // Re-render table after each state
-        renderSkillsTable(data);
-    });
+    renderSkillsTable(data);
+  });
+
+  // 🧩 Type sort
+  sortTypeHeader.addEventListener('click', () => {
+    if (sortStateType === 'unsorted') {
+      sortStateType = 'asc';
+      sortTypeHeader.innerText = 'Type 🔽';
+      sortNameHeader.innerText = 'Skill Name ⏹️';
+      sortStateName = 'unsorted';
+
+      data.skills.sort((a, b) =>
+        a.type.localeCompare(b.type)
+      );
+
+    } else if (sortStateType === 'asc') {
+      sortStateType = 'desc';
+      sortTypeHeader.innerText = 'Type 🔼';
+
+      data.skills.sort((a, b) =>
+        b.type.localeCompare(a.type)
+      );
+
+    } else {
+      sortStateType = 'unsorted';
+      sortTypeHeader.innerText = 'Type ⏹️';
+
+      data.skills = [...originalSkillsOrder];
+    }
+
+    renderSkillsTable(data);
+  });
 }
-
-
-
-
 
 
 function SkillsList() {
