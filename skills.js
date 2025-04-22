@@ -34,6 +34,26 @@ function initPositionDropdown() {
 }
 
 function SkillsList() {
+    // Add style only once
+    if (!document.getElementById("skills-style")) {
+        let style = document.createElement("style");
+        style.id = "skills-style";
+        style.textContent = `
+            .skills-submit-button {
+                background-color: #2d6f84;
+                color: white;
+                padding: 8px 16px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Now your existing logic
     let positionSelect = document.getElementById("position");
     let softSkillsList = document.getElementById("soft-skills-list");
     let techSkillsList = document.getElementById("tech-skills-list");
@@ -54,13 +74,11 @@ function SkillsList() {
         return;
     }
 
-    // Clear previous button if it exists
     let existingButton = document.getElementById("skills-submit-button");
     if (existingButton) {
         existingButton.remove();
     }
 
-    // Filter positionSkills based on position_id
     let selectedSkills = positionSkills.filter(skill => skill.position_id === selectedPosition);
 
     let softSkills = selectedSkills
@@ -70,10 +88,6 @@ function SkillsList() {
     let technicalSkills = selectedSkills
         .map(skill => skills.find(s => s.id === skill.skill_id && s.type === "Technical"))
         .filter(Boolean);
-
-    console.log("Soft Skills:", softSkills);
-    console.log("Technical Skills:", technicalSkills);
-
     softSkillsList.innerHTML = "";
     techSkillsList.innerHTML = "";
 
@@ -88,15 +102,15 @@ function SkillsList() {
         li.innerHTML = `<label><input type="checkbox" class="skill-checkbox" name="skills" value="${skill.id}"> ${skill.skill_name}</label>`;
         techSkillsList.appendChild(li);
     });
-
-    // Create and append submit button
     let submitButton = document.createElement("button");
     submitButton.textContent = "Submit Skills";
     submitButton.id = "skills-submit-button";
+    submitButton.className = "skills-submit-button";
     submitButton.onclick = sendSkillsData;
 
     techSkillsList.parentNode.appendChild(submitButton);
 }
+
 
 function sendSkillsData() {
     // Get selected position

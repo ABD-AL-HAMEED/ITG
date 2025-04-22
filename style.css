@@ -637,7 +637,8 @@ body {
     border-color: rgb(0, 160, 220); /* Matching border */
 }
 
-.export-btn {
+.export-btn,
+.skills-submit-button {
   background-color: #367c96;
   color: white;
   padding: 8px 16px;
@@ -646,7 +647,8 @@ body {
   cursor: pointer;
   margin-bottom: 10px;
 }
-.export-btn:hover {
+.export-btn:hover,
+.skills-submit-button {
   background-color: #2d6f84;
 }
 /* Search Input for Position */
