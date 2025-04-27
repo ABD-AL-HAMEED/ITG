@@ -103,7 +103,7 @@ function SkillsList() {
         techSkillsList.appendChild(li);
     });
     let submitButton = document.createElement("button");
-    submitButton.textContent = "Submit Skills";
+    submitButton.textContent = "Retrieve";
     submitButton.id = "skills-submit-button";
     submitButton.className = "skills-submit-button";
     submitButton.onclick = sendSkillsData;
